@@ -1,0 +1,196 @@
+<app-navbar></app-navbar>
+
+<main class="page">
+  @if (cartNotice(); as notice) {
+    <div class="toast-notice">
+      <span>✓</span>
+      <p>{{ notice }}</p>
+    </div>
+  }
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-copy">
+      <span class="sale-badge">⚡ BIG SALE 2026</span>
+      <p class="kicker">Best Deals • Top Brands • Premium Quality</p>
+      <h1>
+        Discover Amazing
+        <span>Products</span>
+      </h1>
+      <p class="hero-sub">Electronics, Fashion, Mobiles &amp; Accessories</p>
+      <a class="shop-btn" href="#trending">Shop Now</a>
+    </div>
+
+    <div class="hero-showcase" aria-hidden="false">
+      <div class="glass-card card-laptop" (click)="goToCategory('laptops')">
+        <img src="images/laptop.svg" alt="Laptop" />
+        <span>Laptops</span>
+      </div>
+      <div class="glass-card card-mobile" (click)="goToCategory('mobiles')">
+        <img src="images/mobile.svg" alt="Mobile" />
+        <span>Mobiles</span>
+      </div>
+      <div class="glass-card card-watch" (click)="goToCategory('watches')">
+        <img src="images/watch.svg" alt="Smart Watch" />
+        <span>Watches</span>
+      </div>
+      <div class="glass-card card-audio" (click)="goToCategory('audio')">
+        <img src="images/headphone.svg" alt="Headphone" />
+        <span>Audio</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Premium "Shop By Category" Section -->
+  <section class="section category-section" id="categories">
+    <div class="section-head">
+      <div>
+        <span class="category-badge">
+          <i class="bi bi-grid-fill me-1"></i> SHOP BY CATEGORY
+        </span>
+        <h2 class="section-main-heading">Explore Collections</h2>
+        <p class="section-subtext">Browse thousands of products across our premium categories.</p>
+      </div>
+      <div class="category-count-pill" *ngIf="!isCategoriesLoading() && categories().length > 0">
+        {{ categories().length }} Categories Available
+      </div>
+    </div>
+
+    <!-- Error State -->
+    @if (categoryError(); as err) {
+      <div class="category-error-state">
+        <div class="error-icon">⚠️</div>
+        <div class="error-content">
+          <h4>Failed to load categories</h4>
+          <p>{{ err }}</p>
+          <button type="button" class="btn-retry" (click)="retryCategories()">
+            <i class="bi bi-arrow-clockwise"></i> Try Again
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Loading Skeleton State -->
+    @if (isCategoriesLoading()) {
+      <div class="row row-cols-2 row-cols-md-3 row-cols-xl-5 g-3 g-md-4 category-grid-wrapper">
+        @for (item of skeletonPlaceholders; track item) {
+          <div class="col">
+            <div class="category-card-skeleton">
+              <div class="skeleton-image shimmer"></div>
+              <div class="skeleton-footer">
+                <div class="skeleton-title shimmer"></div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Categories Data Display -->
+    @if (!isCategoriesLoading() && !categoryError()) {
+      <div class="row row-cols-2 row-cols-md-3 row-cols-xl-5 g-3 g-md-4 category-grid-wrapper">
+        @for (cat of categories(); track cat.id) {
+          <div class="col">
+            <article
+              class="category-card"
+              role="button"
+              tabindex="0"
+              (click)="goToCategory(cat)"
+              (keydown)="onCategoryKeydown($event, cat)"
+              [attr.aria-label]="cat.name + ' category'"
+            >
+              <!-- 75% Image Section -->
+              <div class="category-image-wrap">
+                <img
+                  [src]="cat.image_url"
+                  [alt]="cat.name"
+                  loading="lazy"
+                  onerror="this.src='https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=600&q=80'"
+                />
+                <div class="category-shine"></div>
+              </div>
+
+              <!-- 25% Footer Name Section -->
+              <div class="category-footer">
+                <h3 class="category-title" [title]="cat.name">{{ cat.name }}</h3>
+                <span class="category-hover-arrow">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </span>
+              </div>
+            </article>
+          </div>
+        }
+      </div>
+
+      <!-- Empty State if no categories returned -->
+      @if (categories().length === 0) {
+        <div class="category-empty-state">
+          <p>No categories found at this time.</p>
+        </div>
+      }
+    }
+  </section>
+
+  <!-- Trending Products Section -->
+  <section class="section" id="trending">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Handpicked for you</p>
+        <h2>Trending products</h2>
+      </div>
+    </div>
+    <div class="product-grid">
+      @for (product of products; track product.id) {
+        <article class="product-card">
+          <button
+            type="button"
+            class="wish"
+            [class.active]="isWished(product.id)"
+            (click)="toggleWishlist(product, $event)"
+            [attr.aria-label]="isWished(product.id) ? 'Remove from wishlist' : 'Add to wishlist'"
+          >
+            ♥
+          </button>
+          @if (getDiscount(product) > 0) {
+            <span class="off">{{ getDiscount(product) }}% off</span>
+          }
+          <div class="product-media" (click)="goToProduct(product.id)" role="button" tabindex="0">
+            <img [src]="product.image" [alt]="product.name" (error)="handleImgError($event)" />
+            @if (isProductOutOfStock(product)) {
+              <div class="out-of-stock-overlay" style="position: absolute; bottom: 8px; left: 8px; background: rgba(220, 38, 38, 0.9); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">
+                Out of Stock
+              </div>
+            }
+          </div>
+          <div class="product-body">
+            <h3 (click)="goToProduct(product.id)" role="button" tabindex="0">{{ product.name }}</h3>
+            <div class="rating" [attr.aria-label]="'Rated ' + product.rating + ' stars'">
+              @for (on of stars(product.rating); track $index) {
+                <span [class.on]="on">★</span>
+              }
+              <em>{{ product.rating }} ({{ product.reviews | number }})</em>
+            </div>
+            <div class="price-row">
+              <strong>₹{{ product.price.toLocaleString('en-IN') }}</strong>
+              @if (product.oldPrice) {
+                <s>₹{{ product.oldPrice.toLocaleString('en-IN') }}</s>
+              }
+            </div>
+            <button
+              type="button"
+              class="cart-btn"
+              [disabled]="isProductOutOfStock(product)"
+              [class.btn-disabled]="isProductOutOfStock(product)"
+              (click)="addToCart(product, $event)"
+            >
+              {{ isProductOutOfStock(product) ? 'Out of stock' : 'Add to cart' }}
+            </button>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+</main>

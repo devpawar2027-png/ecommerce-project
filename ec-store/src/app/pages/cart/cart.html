@@ -1,0 +1,157 @@
+<app-navbar></app-navbar>
+
+<main class="cart-page">
+  <div class="cart-container">
+    <div class="cart-header">
+      <h1>Shopping Cart ({{ cartCount() }} {{ cartCount() === 1 ? 'item' : 'items' }})</h1>
+      @if (cartItems().length > 0) {
+        <button type="button" class="btn-clear-cart" (click)="clearAll()">
+          Clear Cart
+        </button>
+      }
+    </div>
+
+    @if (cartItems().length > 0) {
+      <div class="cart-layout">
+        <!-- Cart Items List -->
+        <div class="items-col">
+          @for (item of cartItems(); track item.product.id) {
+            <article class="cart-card">
+              <a [routerLink]="['/product-details', item.product.id]" class="item-img-link">
+                <img [src]="item.product.image" [alt]="item.product.name" (error)="handleImgError($event)" />
+              </a>
+
+              <div class="item-details">
+                <div class="item-top">
+                  <div>
+                    <span class="item-brand">{{ item.product.brand }}</span>
+                    <h2 class="item-title">
+                      <a [routerLink]="['/product-details', item.product.id]">
+                        {{ item.product.name }}
+                      </a>
+                    </h2>
+                  </div>
+                  <button
+                    type="button"
+                    class="btn-delete"
+                    (click)="removeItem(item.product.id)"
+                    title="Remove item"
+                  >
+                    🗑️
+                  </button>
+                </div>
+
+                <div class="price-row">
+                  <span class="current-price">
+                    ₹{{ (item.product.price * item.quantity).toLocaleString('en-IN') }}
+                  </span>
+                  @if (item.product.oldPrice) {
+                    <span class="old-price">
+                      ₹{{ (item.product.oldPrice * item.quantity).toLocaleString('en-IN') }}
+                    </span>
+                    <span class="discount-badge">{{ item.product.discount }}% OFF</span>
+                  }
+                </div>
+
+                <div class="item-actions">
+                  <div class="quantity-controller">
+                    <button
+                      type="button"
+                      class="qty-btn"
+                      (click)="decreaseQty(item.product.id)"
+                      aria-label="Decrease quantity"
+                    >
+                      −
+                    </button>
+                    <span class="qty-count">{{ item.quantity }}</span>
+                    <button
+                      type="button"
+                      class="qty-btn"
+                      (click)="increaseQty(item.product.id)"
+                      [disabled]="item.quantity >= getItemMaxStock(item)"
+                      aria-label="Increase quantity"
+                    >
+                      +
+                    </button>
+                  </div>
+
+                  <span class="unit-price">
+                    (₹{{ item.product.price.toLocaleString('en-IN') }} each)
+                  </span>
+
+                  <button
+                    type="button"
+                    class="btn-remove-link"
+                    (click)="removeItem(item.product.id)"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+
+        <!-- Order Summary Side Column -->
+        <aside class="summary-col">
+          <div class="summary-card">
+            <h2>Price Details</h2>
+            <hr class="summary-divider" />
+
+            <div class="summary-row">
+              <span>Price ({{ cartCount() }} items)</span>
+              <span>₹{{ cartMRP().toLocaleString('en-IN') }}</span>
+            </div>
+
+            @if (cartSavings() > 0) {
+              <div class="summary-row discount">
+                <span>Discount on MRP</span>
+                <span>−₹{{ cartSavings().toLocaleString('en-IN') }}</span>
+              </div>
+            }
+
+            <div class="summary-row">
+              <span>Delivery Charges</span>
+              <span class="free-delivery">FREE</span>
+            </div>
+
+            <hr class="summary-divider" />
+
+            <div class="summary-row total-row">
+              <span>Total Amount</span>
+              <span class="total-amount">₹{{ cartTotal().toLocaleString('en-IN') }}</span>
+            </div>
+
+            @if (cartSavings() > 0) {
+              <div class="savings-alert">
+                <span>🎉</span> You will save ₹{{ cartSavings().toLocaleString('en-IN') }} on this order!
+              </div>
+            }
+
+            <button
+              type="button"
+              class="btn-checkout"
+              (click)="proceedToCheckout()"
+            >
+              Proceed to Checkout
+            </button>
+
+            <div class="security-guarantee">
+              <span>🔒 Safe and Secure Payments. 100% Authentic products.</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    } @else {
+      <!-- Empty Cart State -->
+      <div class="empty-cart-card">
+        <div class="empty-cart-icon">🛒</div>
+        <h2>Your Cart is Empty!</h2>
+        <p>Looks like you haven't added anything to your cart yet.</p>
+        <a routerLink="/" class="btn-shop-now">
+          Shop Now
+        </a>
+      </div>
+    }
+  </div>
+</main>

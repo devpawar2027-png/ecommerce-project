@@ -1,0 +1,227 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.admin-wrapper {
+  display: flex;
+  min-height: 100vh;
+  position: relative;
+  background-color: #f8fafc;
+}
+
+/* ==========================================================================
+   Main Dark Sidebar (Shopify / Metronic inspired)
+   ========================================================================== */
+.main-sidebar {
+  width: 260px;
+  background: #0f172a;
+  color: #94a3b8;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1040;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 4px 0 24px rgba(15, 23, 42, 0.08);
+  border-right: 1px solid #1e293b;
+  overflow-y: auto;
+}
+
+.brand-link {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px;
+  background-color: #0f172a;
+  color: #ffffff;
+  text-decoration: none;
+  border-bottom: 1px solid #1e293b;
+}
+
+.brand-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 1.15rem;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+}
+
+.brand-text {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #f8fafc;
+}
+
+.sidebar {
+  padding: 0 12px;
+  flex: 1;
+}
+
+.user-panel {
+  border-bottom: 1px solid #1e293b;
+  padding: 14px 8px;
+}
+
+.user-panel .image img {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 2px solid #2563eb;
+  object-fit: cover;
+}
+
+.user-panel .info {
+  margin-left: 12px;
+  line-height: 1.25;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  background-color: #10b981;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 6px #10b981;
+}
+
+/* Nav Menu */
+.nav-sidebar {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  gap: 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-sidebar .nav-item {
+  width: 100%;
+}
+
+.nav-sidebar .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.18s ease;
+  cursor: pointer;
+}
+
+.nav-sidebar .nav-link i.nav-icon {
+  font-size: 1.1rem;
+  min-width: 22px;
+  text-align: center;
+  color: #64748b;
+  transition: all 0.18s ease;
+}
+
+.nav-sidebar .nav-link p {
+  margin: 0;
+  flex: 1;
+}
+
+.nav-sidebar .nav-link:hover {
+  background-color: #1e293b;
+  color: #f8fafc;
+}
+
+.nav-sidebar .nav-link:hover i.nav-icon {
+  color: #38bdf8;
+}
+
+.nav-sidebar .nav-link.active {
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+}
+
+.nav-sidebar .nav-link.active i.nav-icon {
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   Content Area & Top Navbar
+   ========================================================================== */
+.content-wrapper {
+  flex: 1;
+  margin-left: 260px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  transition: margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: #f8fafc;
+}
+
+.main-header {
+  height: 64px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  z-index: 1030;
+}
+
+.content {
+  flex: 1;
+}
+
+.main-footer {
+  margin-top: auto;
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  color: #64748b;
+}
+
+/* Collapsed State on Desktop */
+.admin-wrapper.sidebar-collapse .main-sidebar {
+  margin-left: -260px;
+}
+
+.admin-wrapper.sidebar-collapse .content-wrapper {
+  margin-left: 0;
+}
+
+/* Mobile Responsive */
+@media (max-width: 991.98px) {
+  .main-sidebar {
+    margin-left: -260px;
+  }
+
+  .main-sidebar.mobile-open {
+    margin-left: 0;
+  }
+
+  .content-wrapper {
+    margin-left: 0 !important;
+  }
+
+  .sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 1035;
+    animation: fadeIn 0.2s ease-in-out;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

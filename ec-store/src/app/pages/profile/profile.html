@@ -1,0 +1,346 @@
+<div class="account-page">
+  <div class="account-container">
+    <!-- LEFT SIDEBAR (Flipkart Style) -->
+    <aside class="account-sidebar">
+      <!-- User Profile Card -->
+      <div class="user-card">
+        <div class="user-avatar-wrap">
+          <img
+            [src]="profile_photo || defaultAvatar"
+            alt="User Avatar"
+            class="user-avatar"
+            (error)="handleImgError($event)"
+          />
+        </div>
+        <div class="user-info">
+          <span class="greeting">Hello,</span>
+          <h2 class="user-name">{{ name || 'User' }}</h2>
+          <span class="user-email">{{ email }}</span>
+        </div>
+      </div>
+
+      <!-- Sidebar Navigation Menu -->
+      <nav class="sidebar-nav">
+        <ul class="nav-list">
+          <!-- Profile Information -->
+          <li class="nav-item">
+            <button
+              type="button"
+              class="nav-link"
+              [class.active]="activeTab === 'profile'"
+              (click)="selectTab('profile')"
+            >
+              <svg class="nav-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+              <span>Profile Information</span>
+            </button>
+          </li>
+
+          <!-- My Orders -->
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/orders">
+              <svg class="nav-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <path d="M16 10a4 4 0 0 1-8 0" />
+              </svg>
+              <span>My Orders</span>
+            </a>
+          </li>
+
+          <!-- Addresses -->
+          <li class="nav-item">
+            <button
+              type="button"
+              class="nav-link"
+              [class.active]="activeTab === 'addresses'"
+              (click)="selectTab('addresses')"
+            >
+              <svg class="nav-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              <span>Addresses</span>
+            </button>
+          </li>
+
+          <!-- Logout -->
+          <li class="nav-item logout-item">
+            <button
+              type="button"
+              class="nav-link logout-btn"
+              (click)="logout()"
+            >
+              <svg class="nav-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+              <span>Logout</span>
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- RIGHT CONTENT AREA -->
+    <main class="account-content">
+      <!-- 1. PROFILE INFORMATION TAB -->
+      @if (activeTab === 'profile') {
+        <div class="content-card">
+          <div class="content-header">
+            <h1 class="content-title">Profile Information</h1>
+            <p class="content-subtitle">Manage your personal details and shipping information</p>
+          </div>
+
+          <form class="profile-form" (ngSubmit)="updateProfile()" novalidate>
+            <!-- Profile Photo Upload -->
+            <div class="photo-upload-section">
+              <div class="photo-preview-wrap">
+                <img
+                  [src]="profile_photo || defaultAvatar"
+                  alt="Profile Photo"
+                  class="upload-avatar"
+                  (error)="handleImgError($event)"
+                />
+                <button
+                  type="button"
+                  class="photo-edit-badge"
+                  (click)="fileInput.click()"
+                  title="Upload / Change Photo"
+                  aria-label="Upload profile photo"
+                >
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                    <circle cx="12" cy="13" r="4"/>
+                  </svg>
+                </button>
+              </div>
+
+              <div class="photo-details">
+                <span class="photo-title">Profile Photo</span>
+                <span class="photo-hint">Click the camera badge to select a picture (JPG/PNG/WEBP &le; 5MB).</span>
+                @if (fieldErrors.profile_photo) {
+                  <div class="field-error">
+                    <span>⚠️</span> {{ fieldErrors.profile_photo }}
+                  </div>
+                }
+              </div>
+
+              <input
+                #fileInput
+                type="file"
+                accept=".jpg,.jpeg,.png,.webp"
+                class="hidden-file-input"
+                (change)="onFileSelected($event)"
+              />
+            </div>
+
+            <div class="form-grid">
+              <!-- Name -->
+              <div class="form-group">
+                <label for="name">Full Name <span class="required">*</span></label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  [(ngModel)]="name"
+                  [class.input-invalid]="!!fieldErrors.name"
+                  placeholder="Enter your name"
+                  class="form-control"
+                  required
+                />
+                @if (fieldErrors.name) {
+                  <div class="field-error">
+                    <span>⚠️</span> {{ fieldErrors.name }}
+                  </div>
+                }
+              </div>
+
+              <!-- Email (Readonly) -->
+              <div class="form-group">
+                <label for="email">
+                  Email
+                  <span class="readonly-badge">Read Only</span>
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  [value]="email"
+                  readonly
+                  class="form-control readonly-input"
+                  placeholder="Logged-in email"
+                />
+                <small class="form-hint">Email is linked to your account and cannot be modified.</small>
+              </div>
+
+              <!-- Gender Selection -->
+              <div class="form-group full-width">
+                <label class="section-label">Gender <span class="required">*</span></label>
+                <div class="gender-radio-group">
+                  <label class="gender-option" [class.selected]="gender === 'Male'">
+                    <input
+                      type="radio"
+                      name="gender"
+                      value="Male"
+                      [(ngModel)]="gender"
+                    />
+                    <span>Male</span>
+                  </label>
+
+                  <label class="gender-option" [class.selected]="gender === 'Female'">
+                    <input
+                      type="radio"
+                      name="gender"
+                      value="Female"
+                      [(ngModel)]="gender"
+                    />
+                    <span>Female</span>
+                  </label>
+
+                  <label class="gender-option" [class.selected]="gender === 'Other'">
+                    <input
+                      type="radio"
+                      name="gender"
+                      value="Other"
+                      [(ngModel)]="gender"
+                    />
+                    <span>Other</span>
+                  </label>
+                </div>
+                @if (fieldErrors.gender) {
+                  <div class="field-error">
+                    <span>⚠️</span> {{ fieldErrors.gender }}
+                  </div>
+                }
+              </div>
+
+              <!-- Mobile -->
+              <div class="form-group">
+                <label for="mobile">Mobile Number</label>
+                <input
+                  id="mobile"
+                  name="mobile"
+                  type="tel"
+                  [(ngModel)]="mobile"
+                  [class.input-invalid]="!!fieldErrors.mobile"
+                  placeholder="Enter 10-digit mobile number"
+                  maxlength="10"
+                  class="form-control"
+                />
+                @if (fieldErrors.mobile) {
+                  <div class="field-error">
+                    <span>⚠️</span> {{ fieldErrors.mobile }}
+                  </div>
+                }
+              </div>
+
+              <!-- Address -->
+              <div class="form-group full-width">
+                <label for="address">Delivery Address</label>
+                <textarea
+                  id="address"
+                  name="address"
+                  [(ngModel)]="address"
+                  [class.input-invalid]="!!fieldErrors.address"
+                  placeholder="Enter street, area, city, pincode (min 5 chars)"
+                  rows="3"
+                  class="form-control textarea-control"
+                ></textarea>
+                @if (fieldErrors.address) {
+                  <div class="field-error">
+                    <span>⚠️</span> {{ fieldErrors.address }}
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Feedback Alerts -->
+            @if (successMessage) {
+              <div class="alert alert-success" role="alert">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+                <span>{{ successMessage }}</span>
+              </div>
+            }
+
+            @if (errorMessage) {
+              <div class="alert alert-error" role="alert">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+                <span>{{ errorMessage }}</span>
+              </div>
+            }
+
+            <!-- Save Changes Button -->
+            <div class="form-actions">
+              <button
+                type="submit"
+                class="btn-primary"
+                [disabled]="isLoading"
+                [class.btn-disabled]="isLoading"
+              >
+                @if (!isLoading) {
+                  <span>Save Changes</span>
+                } @else {
+                  <span class="loading-state">
+                    <span class="spinner"></span>
+                    <span>Saving...</span>
+                  </span>
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+      }
+
+      <!-- 2. ADDRESSES TAB -->
+      @if (activeTab === 'addresses') {
+        <div class="content-card">
+          <div class="content-header">
+            <h1 class="content-title">Manage Addresses</h1>
+            <p class="content-subtitle">Your saved shipping addresses for checkout</p>
+          </div>
+
+          <div class="addresses-container">
+            @if (address) {
+              <div class="address-card default-address">
+                <div class="address-header">
+                  <span class="badge badge-default">Default Shipping Address</span>
+                </div>
+                <div class="address-body">
+                  <h3 class="address-name">{{ name }}</h3>
+                  <p class="address-text">{{ address }}</p>
+                  @if (mobile) {
+                    <p class="address-phone">Phone: <strong>{{ mobile }}</strong></p>
+                  }
+                </div>
+              </div>
+            } @else {
+              <div class="empty-state">
+                <div class="empty-icon">📍</div>
+                <h3>No Address Added Yet</h3>
+                <p>Go to the Profile Information tab to enter your shipping address.</p>
+                <button
+                  type="button"
+                  class="btn-secondary"
+                  (click)="selectTab('profile')"
+                >
+                  Add Address Now
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </main>
+  </div>
+</div>

@@ -1,0 +1,100 @@
+/* Products Module Styles */
+.product-thumb-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background-color: #f1f5f9;
+  display: grid;
+  place-items: center;
+  border: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.text-purple {
+  color: #7c3aed !important;
+}
+
+.status-dot-sm {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.action-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  transition: all 0.15s ease;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* Modal Styling */
+.custom-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 1050;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.custom-modal-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 520px;
+  max-width: 90vw;
+  z-index: 1060;
+  animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.custom-modal-dialog.modal-lg {
+  width: 720px;
+}
+
+.custom-modal-dialog.modal-sm {
+  width: 400px;
+}
+
+.modern-input {
+  border-radius: 10px;
+  border: 1.5px solid #cbd5e1;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+}
+
+.modern-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.delete-icon-box {
+  width: 64px;
+  height: 64px;
+  background-color: #fef2f2;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: translate(-50%, -46%) scale(0.96); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}

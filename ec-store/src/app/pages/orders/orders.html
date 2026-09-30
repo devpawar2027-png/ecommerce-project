@@ -1,0 +1,90 @@
+<app-navbar></app-navbar>
+
+<main class="orders-page">
+  <div class="orders-container">
+    <div class="orders-header">
+      <div class="header-titles">
+        <h1>My Orders</h1>
+        <p>Track and manage your online purchases</p>
+      </div>
+      <a routerLink="/" class="btn-shop-more">
+        Continue Shopping
+      </a>
+    </div>
+
+    @if (isLoading()) {
+      <div class="orders-loading">
+        <div class="loading-spinner"></div>
+        <p>Loading your orders...</p>
+      </div>
+    } @else if (enrichedOrders().length > 0) {
+      <div class="orders-list">
+        @for (order of enrichedOrders(); track order.id) {
+          <article class="order-card">
+            <!-- Order Header -->
+            <div class="order-card-header">
+              <div class="order-meta">
+                <span class="meta-label">ORDER ID</span>
+                <span class="meta-value">{{ order.id }}</span>
+              </div>
+              <div class="order-meta">
+                <span class="meta-label">DATE PLACED</span>
+                <span class="meta-value">{{ order.date }}</span>
+              </div>
+              <div class="order-meta">
+                <span class="meta-label">TOTAL AMOUNT</span>
+                <span class="meta-value total-highlight">₹{{ order.total.toLocaleString('en-IN') }}</span>
+              </div>
+              <div class="order-status-badge" [class.delivered]="order.status === 'Delivered'">
+                <span class="status-dot"></span>
+                <span>{{ order.status }}</span>
+              </div>
+            </div>
+
+            <!-- Order Items -->
+            <div class="order-card-body">
+              @for (item of order.items; track item.product.id) {
+                <div class="order-item-row">
+                  <div class="item-thumb-wrap">
+                    <img [src]="item.product.image" [alt]="item.product.name" class="item-img" />
+                  </div>
+                  <div class="item-info">
+                    <span class="item-brand">{{ item.product.brand }}</span>
+                    <h3 class="item-name">
+                      <a [routerLink]="['/product-details', item.product.id]">
+                        {{ item.product.name }}
+                      </a>
+                    </h3>
+                    <div class="item-pricing">
+                      <span class="item-qty">Qty: {{ item.quantity }}</span>
+                      <span class="item-price">₹{{ item.price.toLocaleString('en-IN') }}</span>
+                    </div>
+                  </div>
+                  <div class="item-actions">
+                    <button
+                      type="button"
+                      class="btn-view-item"
+                      (click)="viewProduct(item.product.id)"
+                    >
+                      View Product
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          </article>
+        }
+      </div>
+    } @else {
+      <!-- Empty State -->
+      <div class="empty-orders-card">
+        <div class="empty-icon">📦</div>
+        <h2>No Orders Yet</h2>
+        <p>Looks like you haven't placed any orders yet. Discover our latest collections and start shopping!</p>
+        <a routerLink="/" class="btn-start-shopping">
+          Start Shopping
+        </a>
+      </div>
+    }
+  </div>
+</main>

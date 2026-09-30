@@ -1,0 +1,253 @@
+.dashboard-page {
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+.page-title {
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+/* ==========================================================================
+   Stat Cards (Shopify / Metronic inspired)
+   ========================================================================== */
+.stat-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 18px 18px 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -6px rgba(15, 23, 42, 0.08);
+  border-color: #cbd5e1;
+}
+
+.stat-icon-wrapper {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 1.25rem;
+  margin-bottom: 12px;
+}
+
+.bg-blue-subtle {
+  background-color: #eff6ff;
+  color: #2563eb;
+}
+
+.bg-emerald-subtle {
+  background-color: #ecfdf5;
+  color: #10b981;
+}
+
+.bg-violet-subtle {
+  background-color: #f5f3ff;
+  color: #7c3aed;
+}
+
+.bg-amber-subtle {
+  background-color: #fffbeb;
+  color: #f59e0b;
+}
+
+.bg-rose-subtle {
+  background-color: #fff1f2;
+  color: #e11d48;
+}
+
+.bg-cyan-subtle {
+  background-color: #ecfeff;
+  color: #06b6d4;
+}
+
+.stat-info {
+  margin-bottom: 14px;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: block;
+}
+
+.stat-value {
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-top: 4px;
+  margin-bottom: 0;
+  line-height: 1.1;
+}
+
+.stat-footer {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #2563eb;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.stat-footer:hover {
+  color: #1d4ed8;
+  gap: 4px;
+}
+
+/* Revenue Card */
+.revenue-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid #e2e8f0 !important;
+  border-left: 5px solid #2563eb !important;
+  border-radius: 14px;
+}
+
+.revenue-icon-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: #eff6ff;
+  color: #2563eb;
+  display: grid;
+  place-items: center;
+  font-size: 1.75rem;
+}
+
+.revenue-amount {
+  font-size: 1.85rem;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.letter-spacing-1 {
+  letter-spacing: 0.05em;
+}
+
+/* ==========================================================================
+   Table Card
+   ========================================================================== */
+.table-card {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.table-card .card-header {
+  padding: 16px 20px;
+}
+
+.table > :not(caption) > * > * {
+  padding: 14px 16px;
+}
+
+.avatar-sm {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  font-size: 0.85rem;
+}
+
+/* Status Badges */
+.badge-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.badge-status-pill .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.badge-delivered {
+  background-color: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+.badge-delivered .dot { background-color: #10b981; }
+
+.badge-shipped {
+  background-color: #eff6ff;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+}
+.badge-shipped .dot { background-color: #3b82f6; }
+
+.badge-confirmed {
+  background-color: #f5f3ff;
+  color: #5b21b6;
+  border: 1px solid #ddd6fe;
+}
+.badge-confirmed .dot { background-color: #7c3aed; }
+
+.badge-cancelled {
+  background-color: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+.badge-cancelled .dot { background-color: #ef4444; }
+
+.badge-pending {
+  background-color: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+.badge-pending .dot { background-color: #f59e0b; }
+
+/* Spin animation */
+.spin {
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Skeleton Loading */
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 12px;
+}
+
+.skeleton-line {
+  height: 12px;
+  background-color: rgba(203, 213, 225, 0.6);
+  border-radius: 6px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

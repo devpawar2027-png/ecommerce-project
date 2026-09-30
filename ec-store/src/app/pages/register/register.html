@@ -1,0 +1,234 @@
+<main class="auth-page">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="auth-icon">🛍️</div>
+      <h1>Create an Account</h1>
+      <p>Join EC Store for exclusive discounts and fast checkout</p>
+    </div>
+
+    @if (successMessage) {
+      <div class="alert-success">
+        <span>✅</span>
+        <p>{{ successMessage }}</p>
+      </div>
+    }
+
+    @if (errorMessage) {
+      <div class="alert-error">
+        <span>⚠️</span>
+        <p>{{ errorMessage }}</p>
+      </div>
+    }
+
+    <form (ngSubmit)="onRegister()" class="auth-form" novalidate>
+      <!-- Full Name -->
+      <div class="form-group">
+        <label for="name">
+          Full Name <span class="required">*</span>
+        </label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          [(ngModel)]="name"
+          [class.input-invalid]="!!fieldErrors.name"
+          placeholder="e.g. John Doe"
+          required
+          autocomplete="name"
+        />
+        @if (fieldErrors.name) {
+          <div class="field-error">
+            <span>⚠️</span> {{ fieldErrors.name }}
+          </div>
+        }
+      </div>
+
+      <!-- Email Address -->
+      <div class="form-group">
+        <label for="email">
+          Email Address <span class="required">*</span>
+        </label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          [(ngModel)]="email"
+          [class.input-invalid]="!!fieldErrors.email"
+          placeholder="name@example.com"
+          required
+          autocomplete="email"
+        />
+        @if (fieldErrors.email) {
+          <div class="field-error">
+            <span>⚠️</span> {{ fieldErrors.email }}
+          </div>
+        }
+      </div>
+
+      <!-- Gender & Mobile (Two Columns) -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="gender">
+            Gender <span class="required">*</span>
+          </label>
+          <select
+            id="gender"
+            name="gender"
+            [(ngModel)]="gender"
+            [class.input-invalid]="!!fieldErrors.gender"
+            required
+          >
+            <option value="" disabled selected>Select Gender</option>
+            @for (g of genderOptions; track g) {
+              <option [value]="g">{{ g }}</option>
+            }
+          </select>
+          @if (fieldErrors.gender) {
+            <div class="field-error">
+              <span>⚠️</span> {{ fieldErrors.gender }}
+            </div>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="mobile">
+            Mobile Number <span class="required">*</span>
+          </label>
+          <div class="phone-input-wrap" [class.input-invalid]="!!fieldErrors.mobile">
+            <span class="phone-prefix">+91</span>
+            <input
+              type="tel"
+              id="mobile"
+              name="mobile"
+              [(ngModel)]="mobile"
+              placeholder="9876543210"
+              maxlength="10"
+              required
+              autocomplete="tel"
+            />
+          </div>
+          @if (fieldErrors.mobile) {
+            <div class="field-error">
+              <span>⚠️</span> {{ fieldErrors.mobile }}
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Address -->
+      <div class="form-group">
+        <label for="address">
+          Delivery Address <span class="required">*</span>
+        </label>
+        <textarea
+          id="address"
+          name="address"
+          [(ngModel)]="address"
+          [class.input-invalid]="!!fieldErrors.address"
+          rows="2"
+          placeholder="House / Flat No., Street, City, State, PIN code (min 5 characters)"
+          required
+          autocomplete="street-address"
+        ></textarea>
+        @if (fieldErrors.address) {
+          <div class="field-error">
+            <span>⚠️</span> {{ fieldErrors.address }}
+          </div>
+        }
+      </div>
+
+      <!-- Profile Photo Upload (Optional) -->
+      <div class="form-group">
+        <label for="profile_photo">Profile Photo (Optional, JPG/PNG/WEBP &le; 5MB)</label>
+        <input
+          type="file"
+          id="profile_photo"
+          name="profile_photo"
+          accept=".jpg,.jpeg,.png,.webp"
+          (change)="onPhotoSelected($event)"
+        />
+        @if (fieldErrors.profile_photo) {
+          <div class="field-error">
+            <span>⚠️</span> {{ fieldErrors.profile_photo }}
+          </div>
+        }
+      </div>
+
+      <!-- Password & Confirm Password (Two Columns) -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="password">
+            Password <span class="required">*</span>
+          </label>
+          <div class="password-wrap" [class.input-invalid]="!!fieldErrors.password">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              id="password"
+              name="password"
+              [(ngModel)]="password"
+              placeholder="At least 8 characters"
+              required
+              autocomplete="new-password"
+            />
+            <button
+              type="button"
+              class="btn-toggle-pwd"
+              (click)="togglePasswordVisibility()"
+              [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+            >
+              {{ showPassword ? '👁️' : '🔒' }}
+            </button>
+          </div>
+          @if (fieldErrors.password) {
+            <div class="field-error">
+              <span>⚠️</span> {{ fieldErrors.password }}
+            </div>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="confirm_password">
+            Confirm Password <span class="required">*</span>
+          </label>
+          <div class="password-wrap" [class.input-invalid]="!!fieldErrors.confirm_password">
+            <input
+              [type]="showConfirmPassword ? 'text' : 'password'"
+              id="confirm_password"
+              name="confirm_password"
+              [(ngModel)]="confirm_password"
+              placeholder="Re-enter password"
+              required
+              autocomplete="new-password"
+            />
+            <button
+              type="button"
+              class="btn-toggle-pwd"
+              (click)="toggleConfirmPasswordVisibility()"
+              [attr.aria-label]="showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'"
+            >
+              {{ showConfirmPassword ? '👁️' : '🔒' }}
+            </button>
+          </div>
+          @if (fieldErrors.confirm_password) {
+            <div class="field-error">
+              <span>⚠️</span> {{ fieldErrors.confirm_password }}
+            </div>
+          }
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="isLoading"
+        [class.btn-disabled]="isLoading"
+      >
+        {{ isLoading ? 'Creating Account...' : 'Create Account' }}
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <p>Already have an account? <a routerLink="/login" [queryParams]="returnUrl ? { returnUrl } : null">Sign in</a></p>
+    </div>
+  </div>
+</main>

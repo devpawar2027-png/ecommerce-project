@@ -1,0 +1,302 @@
+<div class="container-fluid">
+  <!-- Page Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 fw-bold text-dark mb-0">Registered Customers</h1>
+      <p class="text-muted small mb-0">View customer accounts, inspect shipping profiles and control user access</p>
+    </div>
+    <div class="mt-2 mt-sm-0">
+      <button class="btn btn-outline-secondary btn-sm bg-white shadow-sm" (click)="loadUsers()" type="button">
+        <i class="bi bi-arrow-clockwise me-1"></i> Refresh Users
+      </button>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  @if (successMessage()) {
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+      <i class="bi bi-check-circle-fill me-2"></i> {{ successMessage() }}
+      <button type="button" class="btn-close" (click)="successMessage.set(null)"></button>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ errorMessage() }}
+      <button type="button" class="btn-close" (click)="errorMessage.set(null)"></button>
+    </div>
+  }
+
+  <!-- Main Card -->
+  <div class="card border-0 shadow-sm">
+    <!-- Filters Bar -->
+    <div class="card-header bg-white border-bottom py-3">
+      <div class="row g-3 align-items-center justify-content-between">
+        <div class="col-md-5 col-sm-6">
+          <div class="input-group">
+            <span class="input-group-text bg-light border-end-0 text-muted">
+              <i class="bi bi-search"></i>
+            </span>
+            <input
+              type="text"
+              class="form-control border-start-0 bg-light"
+              placeholder="Search by name, email, phone or ID..."
+              [ngModel]="searchQuery()"
+              (ngModelChange)="onSearch($event)"
+            />
+          </div>
+        </div>
+
+        <div class="col-md-4 col-sm-6">
+          <select
+            class="form-select bg-light"
+            [ngModel]="statusFilter()"
+            (ngModelChange)="onStatusFilterChange($event)"
+          >
+            <option value="all">All Accounts (Active & Inactive)</option>
+            <option value="active">Active Customers</option>
+            <option value="deleted">Soft Deleted Users</option>
+          </select>
+        </div>
+
+        <div class="col-md-3 text-md-end text-muted small">
+          Customers: <span class="badge bg-primary rounded-pill">{{ filteredUsers().length }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table Body -->
+    <div class="card-body p-0">
+      @if (isLoading()) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading users...</span>
+          </div>
+          <p class="text-muted mt-2 small">Loading registered accounts...</p>
+        </div>
+      } @else {
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light text-uppercase small text-muted">
+              <tr>
+                <th class="ps-4 py-3" style="width: 70px;">ID</th>
+                <th>Customer</th>
+                <th>Contact</th>
+                <th>Gender</th>
+                <th>Address</th>
+                <th>Status</th>
+                <th class="text-end pe-4" style="width: 170px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of paginatedUsers(); track user.id) {
+                <tr [class.table-light]="user.is_deleted">
+                  <td class="ps-4 fw-bold text-muted">#{{ user.id }}</td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <img
+                        [src]="user.profile_photo || 'assets/images/default-user.png'"
+                        class="rounded-circle border"
+                        width="36"
+                        height="36"
+                        alt="Profile"
+                      />
+                      <div>
+                        <div class="fw-semibold text-dark">{{ user.name }}</div>
+                        <small class="text-muted">{{ user.email }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="small text-dark fw-medium">
+                      <i class="bi bi-telephone me-1 text-muted"></i>
+                      {{ user.mobile || 'Not set' }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="text-capitalize small text-muted">
+                      {{ user.gender || 'Unspecified' }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="text-muted small text-truncate" style="max-width: 200px;">
+                      {{ user.address || 'No address registered' }}
+                    </div>
+                  </td>
+                  <td>
+                    @if (!user.is_deleted) {
+                      <span class="badge bg-success bg-opacity-10 text-success border border-success-subtle rounded-pill px-2.5 py-1">
+                        Active
+                      </span>
+                    } @else {
+                      <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary-subtle rounded-pill px-2.5 py-1">
+                        Deleted
+                      </span>
+                    }
+                  </td>
+                  <td class="text-end pe-4">
+                    <button
+                      class="btn btn-sm btn-outline-info me-2"
+                      (click)="viewProfile(user)"
+                      title="View Profile Details"
+                      type="button"
+                    >
+                      <i class="bi bi-person-badge"></i>
+                    </button>
+
+                    @if (!user.is_deleted) {
+                      <button
+                        class="btn btn-sm btn-outline-danger"
+                        (click)="openActionModal(user, 'delete')"
+                        title="Soft Delete User"
+                        type="button"
+                      >
+                        <i class="bi bi-person-x-fill"></i>
+                      </button>
+                    } @else {
+                      <button
+                        class="btn btn-sm btn-outline-success"
+                        (click)="openActionModal(user, 'restore')"
+                        title="Restore User Account"
+                        type="button"
+                      >
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                      </button>
+                    }
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="7" class="text-center py-5 text-muted">
+                    <i class="bi bi-people fs-1 d-block mb-2 text-secondary"></i>
+                    <h6 class="fw-bold mb-1">No Customers Found</h6>
+                    <p class="small mb-0">No registered accounts matched the active search filters.</p>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        @if (filteredUsers().length > pageSize()) {
+          <div class="card-footer bg-white border-top py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <span class="text-muted small">
+              Page {{ currentPage() }} of {{ totalPages() }} ({{ filteredUsers().length }} total users)
+            </span>
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item" [class.disabled]="currentPage() === 1">
+                <button class="page-link" (click)="setPage(currentPage() - 1)">Previous</button>
+              </li>
+              @for (p of [].constructor(totalPages()); track $index) {
+                <li class="page-item" [class.active]="currentPage() === ($index + 1)">
+                  <button class="page-link" (click)="setPage($index + 1)">{{ $index + 1 }}</button>
+                </li>
+              }
+              <li class="page-item" [class.disabled]="currentPage() === totalPages()">
+                <button class="page-link" (click)="setPage(currentPage() + 1)">Next</button>
+              </li>
+            </ul>
+          </div>
+        }
+      }
+    </div>
+  </div>
+
+  <!-- View Profile Modal -->
+  @if (isProfileModalOpen() && selectedUser()) {
+    <div class="custom-modal-backdrop" (click)="closeProfileModal()"></div>
+    <div class="custom-modal-dialog">
+      <div class="modal-content shadow-lg border-0 rounded-3">
+        <div class="modal-header border-bottom py-3">
+          <h5 class="modal-title fw-bold text-dark d-flex align-items-center gap-2">
+            <i class="bi bi-person-circle text-primary"></i> Customer Profile #{{ selectedUser()?.id }}
+          </h5>
+          <button type="button" class="btn-close" (click)="closeProfileModal()"></button>
+        </div>
+        <div class="modal-body p-4 text-center">
+          <img
+            [src]="selectedUser()?.profile_photo || 'assets/images/default-user.png'"
+            class="rounded-circle border mb-3 shadow-xs"
+            width="80"
+            height="80"
+            alt="Customer Avatar"
+          />
+          <h5 class="fw-bold mb-0 text-dark">{{ selectedUser()?.name }}</h5>
+          <p class="text-muted small mb-3">{{ selectedUser()?.email }}</p>
+
+          <div class="text-start bg-light rounded-3 p-3 mb-3">
+            <div class="row g-2 small">
+              <div class="col-sm-4 text-muted">Account Status:</div>
+              <div class="col-sm-8 fw-semibold">
+                @if (!selectedUser()?.is_deleted) {
+                  <span class="badge bg-success">Active Customer</span>
+                } @else {
+                  <span class="badge bg-secondary">Soft Deleted</span>
+                }
+              </div>
+
+              <div class="col-sm-4 text-muted">Phone / Mobile:</div>
+              <div class="col-sm-8 fw-semibold text-dark">{{ selectedUser()?.mobile || 'Not available' }}</div>
+
+              <div class="col-sm-4 text-muted">Gender:</div>
+              <div class="col-sm-8 fw-semibold text-capitalize text-dark">{{ selectedUser()?.gender || 'Unspecified' }}</div>
+
+              <div class="col-sm-4 text-muted">Primary Address:</div>
+              <div class="col-sm-8 fw-semibold text-dark">{{ selectedUser()?.address || 'No shipping address provided' }}</div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end">
+            <button type="button" class="btn btn-secondary btn-sm px-4" (click)="closeProfileModal()">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Delete or Restore Modal -->
+  @if (isActionModalOpen() && actionUser()) {
+    <div class="custom-modal-backdrop" (click)="closeActionModal()"></div>
+    <div class="custom-modal-dialog modal-sm">
+      <div class="modal-content shadow-lg border-0 rounded-3 text-center p-4">
+        <div class="mb-3">
+          <div class="delete-icon-box mx-auto" [class.bg-success-subtle]="actionType() === 'restore'">
+            <i class="bi {{ actionType() === 'delete' ? 'bi-person-x-fill text-danger' : 'bi-arrow-counterclockwise text-success' }} fs-2"></i>
+          </div>
+        </div>
+        <h5 class="fw-bold mb-2">
+          {{ actionType() === 'delete' ? 'Soft Delete User?' : 'Restore User?' }}
+        </h5>
+        <p class="text-muted small mb-4">
+          @if (actionType() === 'delete') {
+            Are you sure you want to disable customer account for
+            <strong class="text-dark">"{{ actionUser()?.name }}"</strong>? They won't be able to log in.
+          } @else {
+            Are you sure you want to restore customer account for
+            <strong class="text-dark">"{{ actionUser()?.name }}"</strong>?
+          }
+        </p>
+        <div class="d-flex justify-content-center gap-2">
+          <button type="button" class="btn btn-light border px-3" (click)="closeActionModal()" [disabled]="isSubmitting()">
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn {{ actionType() === 'delete' ? 'btn-danger' : 'btn-success' }} px-4"
+            (click)="confirmAction()"
+            [disabled]="isSubmitting()"
+          >
+            @if (isSubmitting()) {
+              <span class="spinner-border spinner-border-sm me-1"></span> Processing...
+            } @else {
+              {{ actionType() === 'delete' ? 'Disable Account' : 'Restore Account' }}
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

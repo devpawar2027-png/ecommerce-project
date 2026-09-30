@@ -1,0 +1,53 @@
+<app-navbar></app-navbar>
+
+<main class="success-page">
+  <div class="success-card">
+    <div class="success-icon-wrap">
+      <div class="checkmark">✓</div>
+    </div>
+
+    <h1>Order Placed Successfully!</h1>
+    <p class="subtitle">Thank you for shopping with EC Store. Your order has been confirmed.</p>
+
+    @if (order(); as ord) {
+      <div class="order-badge">
+        <span class="label">Order Number:</span>
+        <span class="number">{{ ord.orderId }}</span>
+      </div>
+
+      <div class="order-details-box">
+        <div class="detail-row">
+          <span>Date:</span>
+          <strong>{{ ord.date }}</strong>
+        </div>
+        <div class="detail-row">
+          <span>Recipient:</span>
+          <strong>{{ ord.customer.name }} ({{ ord.customer.mobile }})</strong>
+        </div>
+        <div class="detail-row">
+          <span>Delivery Address:</span>
+          <strong>{{ ord.customer.address }}, {{ ord.customer.city }}, {{ ord.customer.state }} - {{ ord.customer.pincode }}</strong>
+        </div>
+        <div class="detail-row">
+          <span>Payment Mode:</span>
+          <strong>{{ ord.customer.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment' }}</strong>
+        </div>
+        <div class="detail-row total">
+          <span>Total Paid:</span>
+          <strong class="highlight">₹{{ ord.totalAmount.toLocaleString('en-IN') }}</strong>
+        </div>
+      </div>
+    } @else {
+      <div class="order-badge">
+        <span class="label">Order Number:</span>
+        <span class="number">ORD-{{ (100000 + 48291).toString() }}</span>
+      </div>
+    }
+
+    <div class="action-buttons">
+      <button type="button" class="btn-continue" (click)="continueShopping()">
+        Continue Shopping
+      </button>
+    </div>
+  </div>
+</main>

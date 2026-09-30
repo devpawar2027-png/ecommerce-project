@@ -1,0 +1,245 @@
+<app-navbar></app-navbar>
+
+<main class="checkout-page">
+  <div class="checkout-container">
+    <div class="checkout-header">
+      <h1>Checkout &amp; Place Order</h1>
+      <p>Enter your delivery details to complete your purchase</p>
+    </div>
+
+    @if (errorMessage) {
+      <div class="alert-error">
+        <span>⚠️</span>
+        <p>{{ errorMessage }}</p>
+      </div>
+    }
+
+    <div class="checkout-layout">
+      <!-- Shipping Form -->
+      <section class="form-col">
+        <form (ngSubmit)="onPlaceOrder()" class="checkout-form" id="checkoutForm" novalidate>
+          <div class="form-card">
+            <h2>1. Contact &amp; Shipping Address</h2>
+
+            <div class="form-grid">
+              <div class="form-group span-2">
+                <label for="name">Full Name <span class="required">*</span></label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  [(ngModel)]="name"
+                  [class.input-invalid]="!!fieldErrors.name"
+                  placeholder="e.g. John Doe"
+                  required
+                />
+                @if (fieldErrors.name) {
+                  <div class="field-error">
+                    <span>⚠️</span> {{ fieldErrors.name }}
+                  </div>
+                }
+              </div>
+
+              <div class="form-group">
+                <label for="mobile">Mobile Number (10 digits) <span class="required">*</span></label>
+                <input
+                  type="tel"
+                  id="mobile"
+                  name="mobile"
+                  [(ngModel)]="mobile"
+                  [class.input-invalid]="!!fieldErrors.mobile"
+                  placeholder="e.g. 9876543210"
+                  maxlength="10"
+                  required
+                />
+                @if (fieldErrors.mobile) {
+                  <div class="field-error">
+                    <span>⚠️</span> {{ fieldErrors.mobile }}
+                  </div>
+                }
+              </div>
+
+              <div class="form-group">
+                <label for="email">Email Address <span class="required">*</span></label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  [(ngModel)]="email"
+                  [class.input-invalid]="!!fieldErrors.email"
+                  placeholder="name@example.com"
+                  required
+                />
+                @if (fieldErrors.email) {
+                  <div class="field-error">
+                    <span>⚠️</span> {{ fieldErrors.email }}
+                  </div>
+                }
+              </div>
+
+              <div class="form-group span-2">
+                <label for="address">Street Address / House No. <span class="required">*</span></label>
+                <textarea
+                  id="address"
+                  name="address"
+                  [(ngModel)]="address"
+                  [class.input-invalid]="!!fieldErrors.address"
+                  placeholder="Flat/House no., Building, Street name, Area (min 5 chars)"
+                  rows="2"
+                  required
+                ></textarea>
+                @if (fieldErrors.address) {
+                  <div class="field-error">
+                    <span>⚠️</span> {{ fieldErrors.address }}
+                  </div>
+                }
+              </div>
+
+              <div class="form-group">
+                <label for="city">City <span class="required">*</span></label>
+                <input
+                  type="text"
+                  id="city"
+                  name="city"
+                  [(ngModel)]="city"
+                  [class.input-invalid]="!!fieldErrors.city"
+                  placeholder="e.g. Mumbai"
+                  required
+                />
+                @if (fieldErrors.city) {
+                  <div class="field-error">
+                    <span>⚠️</span> {{ fieldErrors.city }}
+                  </div>
+                }
+              </div>
+
+              <div class="form-group">
+                <label for="state">State <span class="required">*</span></label>
+                <select id="state" name="state" [(ngModel)]="state" required>
+                  @for (s of states; track s) {
+                    <option [value]="s">{{ s }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="pincode">Pincode (6 digits) <span class="required">*</span></label>
+                <input
+                  type="text"
+                  id="pincode"
+                  name="pincode"
+                  [(ngModel)]="pincode"
+                  [class.input-invalid]="!!fieldErrors.pincode"
+                  placeholder="e.g. 400001"
+                  maxlength="6"
+                  required
+                />
+                @if (fieldErrors.pincode) {
+                  <div class="field-error">
+                    <span>⚠️</span> {{ fieldErrors.pincode }}
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="form-card">
+            <h2>2. Payment Method</h2>
+
+            <div class="payment-options">
+              <label class="payment-option" [class.selected]="paymentMethod === 'cod'">
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="cod"
+                  [(ngModel)]="paymentMethod"
+                />
+                <div class="payment-info">
+                  <strong>💵 Cash on Delivery (COD)</strong>
+                  <p>Pay with cash or UPI upon delivery</p>
+                </div>
+              </label>
+
+              <label class="payment-option" [class.selected]="paymentMethod === 'online'">
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="online"
+                  [(ngModel)]="paymentMethod"
+                />
+                <div class="payment-info">
+                  <strong>💳 UPI / Credit &amp; Debit Card / Netbanking</strong>
+                  <p>Instant secure payment gateway simulation</p>
+                </div>
+              </label>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <!-- Order Summary Column -->
+      <aside class="summary-col">
+        <div class="summary-card">
+          <h2>Order Summary</h2>
+          <hr class="summary-divider" />
+
+          <!-- Items list preview -->
+          <div class="items-preview">
+            @for (item of cartItems(); track item.product.id) {
+              <div class="preview-item">
+                <img [src]="item.product.image" [alt]="item.product.name" (error)="handleImgError($event)" />
+                <div class="preview-info">
+                  <h4>{{ item.product.name }}</h4>
+                  <p>Qty: {{ item.quantity }} × ₹{{ item.product.price.toLocaleString('en-IN') }}</p>
+                </div>
+                <span class="preview-price">
+                  ₹{{ (item.product.price * item.quantity).toLocaleString('en-IN') }}
+                </span>
+              </div>
+            }
+          </div>
+
+          <hr class="summary-divider" />
+
+          <div class="summary-row">
+            <span>Items ({{ cartCount() }})</span>
+            <span>₹{{ cartMRP().toLocaleString('en-IN') }}</span>
+          </div>
+
+          @if (cartSavings() > 0) {
+            <div class="summary-row discount">
+              <span>Savings</span>
+              <span>−₹{{ cartSavings().toLocaleString('en-IN') }}</span>
+            </div>
+          }
+
+          <div class="summary-row">
+            <span>Delivery Fee</span>
+            <span class="free">FREE</span>
+          </div>
+
+          <hr class="summary-divider" />
+
+          <div class="summary-row total-row">
+            <span>Total Payable</span>
+            <span class="total-amount">₹{{ cartTotal().toLocaleString('en-IN') }}</span>
+          </div>
+
+          <button
+            type="submit"
+            form="checkoutForm"
+            class="btn-place-order"
+            [disabled]="isProcessing || cartItems().length === 0"
+            [class.btn-disabled]="isProcessing || cartItems().length === 0"
+          >
+            {{ isProcessing ? 'Placing Order...' : 'Place Order' }}
+          </button>
+
+          <p class="terms-notice">
+            By placing your order, you agree to EC Store's Terms of Use &amp; Sale.
+          </p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</main>

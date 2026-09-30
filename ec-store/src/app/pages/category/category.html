@@ -1,0 +1,136 @@
+<app-navbar></app-navbar>
+
+<main class="category-page">
+  @if (isLoading()) {
+    <!-- Loading skeleton -->
+    <div class="category-loading" aria-live="polite" aria-busy="true">
+      <div class="skeleton banner-skeleton"></div>
+      <div class="sub-header-skeleton">
+        <div class="skeleton title-skeleton"></div>
+        <div class="skeleton count-skeleton"></div>
+      </div>
+      <div class="subcategories-grid">
+        @for (i of [1, 2, 3]; track i) {
+          <div class="skeleton card-skeleton"></div>
+        }
+      </div>
+    </div>
+  } @else if (category(); as cat) {
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb-bar" aria-label="Breadcrumb">
+      <a routerLink="/" class="crumb-link">Home</a>
+      <span class="crumb-sep">/</span>
+      <span class="crumb-current">{{ cat.name }}</span>
+    </nav>
+
+    <!-- Category Hero Banner -->
+    <header class="category-banner">
+      <div class="banner-content">
+        <span class="banner-badge">EC Store Department</span>
+        <h1>{{ cat.name }}</h1>
+        <p class="banner-tagline">{{ getCategoryTagline(cat) }}</p>
+        <div class="banner-perks">
+          <span>⚡ Genuine Brands</span>
+          <span>🚚 Free Express Shipping</span>
+          <span>🛡️ Official Warranty</span>
+        </div>
+      </div>
+      <div class="banner-visual">
+        <img [src]="getCategoryBanner(cat)" [alt]="cat.name + ' banner'" />
+      </div>
+    </header>
+
+    <!-- Subcategories Section -->
+    <section class="subcategories-section">
+      <div class="section-title-wrap">
+        <div>
+          <span class="eyebrow">Explore Collections</span>
+          <h2>Shop {{ cat.name }} by Category</h2>
+        </div>
+        <span class="sub-count">{{ subcategories().length }} subcategories available</span>
+      </div>
+
+      @if (subcategories().length > 0) {
+        <div class="subcategories-grid">
+          @for (sub of subcategories(); track sub.id) {
+            <article
+              class="sub-card"
+              (click)="goToSubcategory(sub)"
+              (keydown.enter)="goToSubcategory(sub)"
+              role="button"
+              tabindex="0"
+            >
+              <div class="sub-media">
+                <img [src]="getSubcategoryImage(sub)" [alt]="sub.name" />
+                <span class="sub-offer">{{ getSubcategoryOffer(sub) }}</span>
+                <span class="sub-items-badge">{{ getSubcategoryItemCount(sub) }}</span>
+              </div>
+
+              <div class="sub-info">
+                <h3>{{ sub.name }}</h3>
+                <p class="sub-desc">{{ getSubcategoryDescription(sub) }}</p>
+                <div class="sub-cta">
+                  <span>View All Products</span>
+                  <span class="arrow">→</span>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      } @else {
+        <div class="empty-subcategories-card">
+          <div class="empty-icon">📁</div>
+          <h3>No Subcategories Found</h3>
+          <p>There are no active subcategories available for {{ cat.name }} right now.</p>
+        </div>
+      }
+    </section>
+
+    <!-- Featured Products in this Category -->
+    @if (featuredProducts().length > 0) {
+      <section class="featured-section">
+        <div class="section-title-wrap">
+          <div>
+            <span class="eyebrow">Top Recommendations</span>
+            <h2>Popular in {{ cat.name }}</h2>
+          </div>
+        </div>
+
+        <div class="featured-grid">
+          @for (prod of featuredProducts(); track prod.id) {
+            <article class="product-mini-card" (click)="goToProduct(prod.id)">
+              <div class="mini-media">
+                <img [src]="prod.image" [alt]="prod.name" />
+                <span class="mini-off">{{ prod.discount }}% OFF</span>
+              </div>
+              <div class="mini-body">
+                <span class="mini-brand">{{ prod.brand }}</span>
+                <h4>{{ prod.name }}</h4>
+                <div class="mini-rating">
+                  <span class="pill">★ {{ prod.rating }}</span>
+                  <span class="count">({{ prod.reviews }})</span>
+                </div>
+                <div class="mini-price">
+                  <strong>₹{{ prod.price.toLocaleString('en-IN') }}</strong>
+                  @if (prod.oldPrice) {
+                    <s>₹{{ prod.oldPrice.toLocaleString('en-IN') }}</s>
+                  }
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+    }
+  } @else {
+    <!-- Category Not Found -->
+    <div class="not-found-card">
+      <div class="not-found-icon">🏷️</div>
+      <h2>Category Not Found</h2>
+      <p>The category you requested could not be found. Check our other collections!</p>
+      <button type="button" class="btn-home" (click)="goHome()">
+        Return to Home
+      </button>
+    </div>
+  }
+</main>

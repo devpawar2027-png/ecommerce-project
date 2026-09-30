@@ -1,0 +1,284 @@
+<app-navbar></app-navbar>
+
+<main class="details-page">
+  @if (addedNotification(); as message) {
+    <div class="toast-notification">
+      <div class="toast-icon">✓</div>
+      <div class="toast-content">
+        <p class="toast-title">Cart Updated</p>
+        <p class="toast-message">{{ message }}</p>
+      </div>
+      <button type="button" class="toast-close" (click)="addedNotification.set(null)">✕</button>
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="product-layout-card p-5 text-center">
+      <div class="spinner-border text-primary mb-3" role="status"></div>
+      <p class="text-muted fw-semibold">Loading product specifications from server...</p>
+    </div>
+  } @else if (product(); as prod) {
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb-bar" aria-label="Breadcrumb">
+      <a routerLink="/" class="crumb-link">Home</a>
+      <span class="crumb-sep">/</span>
+      <a [routerLink]="['/category', prod.categorySlug]" class="crumb-link">{{ prod.category }}</a>
+      <span class="crumb-sep">/</span>
+      <a [routerLink]="['/products', prod.categorySlug, prod.subcategorySlug]" class="crumb-link">{{ prod.subcategory }}</a>
+      <span class="crumb-sep">/</span>
+      <span class="crumb-current">{{ prod.name }}</span>
+    </nav>
+
+    <div class="product-layout-card">
+      <!-- Left Column: Gallery -->
+      <div class="gallery-col">
+        <div class="image-wrapper">
+          <div class="badge-tag">{{ prod.category }}</div>
+          <button
+            type="button"
+            class="wish-toggle-btn"
+            [class.active]="isWished()"
+            (click)="toggleWishlist()"
+            [attr.aria-label]="isWished() ? 'Remove from wishlist' : 'Add to wishlist'"
+          >
+            <span class="wish-icon">♥</span>
+          </button>
+          <img
+            [src]="selectedImage() || prod.image"
+            [alt]="prod.name"
+            class="main-product-img"
+            (error)="handleImgError($event)"
+          />
+        </div>
+
+        <!-- Thumbnails Below -->
+        <div class="thumbnails-strip" aria-label="Product image thumbnails">
+          @for (img of prod.images; track img) {
+            <button
+              type="button"
+              class="thumb-btn"
+              [class.active]="img === selectedImage()"
+              (click)="selectImage(img)"
+            >
+              <img [src]="img" [alt]="prod.name + ' thumbnail'" (error)="handleImgError($event)" />
+            </button>
+          }
+        </div>
+
+        <!-- Trust Badges -->
+        <div class="trust-badges">
+          <div class="trust-item">
+            <span class="trust-icon">🚚</span>
+            <div>
+              <strong>Free Delivery</strong>
+              <p>On orders above ₹499</p>
+            </div>
+          </div>
+          <div class="trust-item">
+            <span class="trust-icon">🔄</span>
+            <div>
+              <strong>7 Days Return</strong>
+              <p>Hassle-free replacement</p>
+            </div>
+          </div>
+          <div class="trust-item">
+            <span class="trust-icon">🛡️</span>
+            <div>
+              <strong>1 Year Warranty</strong>
+              <p>Genuine brand guarantee</p>
+            </div>
+          </div>
+          <div class="trust-item">
+            <span class="trust-icon">🔒</span>
+            <div>
+              <strong>Secure Pay</strong>
+              <p>100% safe transactions</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Details & Actions -->
+      <div class="details-col">
+        <!-- Brand & Category -->
+        <div class="header-meta">
+          <span class="brand-badge">{{ prod.brand }}</span>
+          <span class="meta-dot">•</span>
+          <span class="category-text">{{ prod.category }}</span>
+        </div>
+
+        <!-- Product Title -->
+        <h1 class="product-title">{{ prod.name }}</h1>
+
+        <!-- Rating & Reviews -->
+        <div class="ratings-container">
+          <div class="rating-pill">
+            <span class="score">{{ prod.rating }}</span>
+            <span class="star-icon">★</span>
+          </div>
+          <div class="stars-visual">
+            @for (filled of stars(); track $index) {
+              <span class="star" [class.filled]="filled">★</span>
+            }
+          </div>
+          <span class="reviews-count">{{ prod.reviews | number }} Ratings &amp; Reviews</span>
+          <span class="verified-tag">✓ Verified Purchase</span>
+        </div>
+
+        <hr class="divider" />
+
+        <!-- Price Section -->
+        <div class="price-section">
+          <div class="price-main-row">
+            <span class="selling-price">₹{{ prod.price.toLocaleString('en-IN') }}</span>
+            @if (prod.oldPrice) {
+              <span class="original-price">₹{{ prod.oldPrice.toLocaleString('en-IN') }}</span>
+            }
+            <span class="discount-badge">{{ discountPercentage() }}% OFF</span>
+          </div>
+          <p class="tax-note">Inclusive of all taxes • Free shipping included</p>
+        </div>
+
+        <!-- Bank Offers -->
+        <div class="offers-panel">
+          <p class="offers-title">🏷️ Available Offers</p>
+          <ul class="offers-list">
+            <li>
+              <strong>Bank Offer:</strong> 5% Unlimited Cashback on Flipkart / Axis Bank Credit Card
+            </li>
+            <li>
+              <strong>Special Price:</strong> Extra ₹1,000 off on exchange of old devices
+            </li>
+            <li>
+              <strong>No Cost EMI:</strong> Available starting from ₹{{ ((prod.price / 12) | number:'1.0-0') }}/month
+            </li>
+          </ul>
+        </div>
+
+        <!-- Stock Status -->
+        <div class="stock-status-row">
+          <span class="status-label">Availability:</span>
+          @if (!isOutOfStock()) {
+            <span class="stock-badge in-stock">
+              <span class="status-dot"></span> In Stock ({{ availableStock() }} available)
+            </span>
+          } @else {
+            <span class="stock-badge out-stock">
+              <span class="status-dot"></span> Out of Stock
+            </span>
+          }
+        </div>
+
+        <!-- Quantity Selector -->
+        <div class="quantity-row">
+          <span class="qty-label">Quantity:</span>
+          <div class="quantity-selector">
+            <button
+              type="button"
+              class="qty-btn"
+              (click)="decreaseQuantity()"
+              [disabled]="quantity() <= 1 || isOutOfStock()"
+              aria-label="Decrease quantity"
+            >
+              −
+            </button>
+            <span class="qty-value">{{ isOutOfStock() ? 0 : quantity() }}</span>
+            <button
+              type="button"
+              class="qty-btn"
+              (click)="increaseQuantity()"
+              [disabled]="quantity() >= availableStock() || isOutOfStock()"
+              aria-label="Increase quantity"
+            >
+              +
+            </button>
+          </div>
+        </div>
+
+        <!-- CTA Action Buttons -->
+        <div class="cta-actions">
+          <button
+            type="button"
+            class="btn btn-cart"
+            (click)="addToCart()"
+            [disabled]="isOutOfStock()"
+            [class.btn-disabled]="isOutOfStock()"
+          >
+            <span class="btn-icon">🛒</span>
+            <span>Add To Cart</span>
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-buy"
+            (click)="buyNow()"
+            [disabled]="isOutOfStock()"
+            [class.btn-disabled]="isOutOfStock()"
+          >
+            <span class="btn-icon">⚡</span>
+            <span>Buy Now</span>
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-wish"
+            [class.wished]="isWished()"
+            (click)="toggleWishlist()"
+            [attr.aria-label]="isWished() ? 'Wishlisted' : 'Add to wishlist'"
+          >
+            <span>♥</span>
+            <span class="wish-text">{{ isWished() ? 'Wishlisted' : 'Wishlist' }}</span>
+          </button>
+        </div>
+
+        <hr class="divider" />
+
+        <!-- Description -->
+        <div class="info-section">
+          <h2 class="section-title">Product Description</h2>
+          <p class="description-text">{{ prod.description }}</p>
+        </div>
+
+        <!-- Key Features Highlights -->
+        @if (prod.features && prod.features.length) {
+          <div class="info-section">
+            <h2 class="section-title">Key Highlights</h2>
+            <ul class="highlights-list">
+              @for (feat of prod.features; track feat) {
+                <li>
+                  <span class="bullet-check">✓</span>
+                  <span>{{ feat }}</span>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+
+        <!-- Specifications Table -->
+        @if (specEntries().length) {
+          <div class="info-section">
+            <h2 class="section-title">Specifications</h2>
+            <div class="specs-table">
+              @for (item of specEntries(); track item.key) {
+                <div class="specs-row">
+                  <div class="specs-key">{{ item.key }}</div>
+                  <div class="specs-value">{{ item.value }}</div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  } @else {
+    <!-- Product Not Found State -->
+    <div class="not-found-card">
+      <div class="not-found-icon">🔍</div>
+      <h2>Product Not Found</h2>
+      <p>The product you are looking for does not exist or has been removed.</p>
+      <button type="button" class="btn btn-primary" (click)="goBack()">
+        Back to Products
+      </button>
+    </div>
+  }
+</main>

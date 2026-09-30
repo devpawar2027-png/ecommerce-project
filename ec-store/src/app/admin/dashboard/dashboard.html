@@ -1,0 +1,244 @@
+<div class="dashboard-page">
+  <!-- Page Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="page-title mb-1">Dashboard Overview</h1>
+      <p class="text-muted small mb-0">Real-time performance metrics and live storefront insights</p>
+    </div>
+    <div class="d-flex gap-2 mt-3 mt-sm-0">
+      <button
+        class="btn btn-outline-secondary btn-sm rounded-pill px-3 shadow-sm bg-white"
+        (click)="loadDashboardData()"
+        [disabled]="isLoading()"
+        type="button"
+      >
+        <i class="bi bi-arrow-clockwise me-1" [class.spin]="isLoading()"></i> Refresh
+      </button>
+      <a routerLink="/admin/products" class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm">
+        <i class="bi bi-plus-circle me-1"></i> Add Product
+      </a>
+    </div>
+  </div>
+
+  <!-- Loading Skeletons for Stat Cards -->
+  @if (isLoading()) {
+    <div class="row g-3 mb-4">
+      @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+        <div class="col-xl-2 col-md-4 col-sm-6">
+          <div class="stat-card skeleton-stat-card">
+            <div class="skeleton-shimmer h-100 p-3">
+              <div class="skeleton-line w-50 mb-2"></div>
+              <div class="skeleton-line w-75 mb-3" style="height: 28px;"></div>
+              <div class="skeleton-line w-100"></div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <!-- 6 Dashboard Metric Cards + Revenue Card -->
+    <div class="row g-3 mb-4">
+      <!-- 📦 Products -->
+      <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="stat-card stat-card-products">
+          <div class="stat-icon-wrapper bg-blue-subtle text-primary">
+            <i class="bi bi-box-seam-fill"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Products</span>
+            <h3 class="stat-value">{{ stats().products }}</h3>
+          </div>
+          <a routerLink="/admin/products" class="stat-footer">
+            <span>Manage catalog</span>
+            <i class="bi bi-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- 📂 Categories -->
+      <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="stat-card stat-card-categories">
+          <div class="stat-icon-wrapper bg-emerald-subtle text-success">
+            <i class="bi bi-tags-fill"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Categories</span>
+            <h3 class="stat-value">{{ stats().categories }}</h3>
+          </div>
+          <a routerLink="/admin/categories" class="stat-footer">
+            <span>View departments</span>
+            <i class="bi bi-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- 🏷 Brands -->
+      <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="stat-card stat-card-brands">
+          <div class="stat-icon-wrapper bg-violet-subtle text-purple">
+            <i class="bi bi-award-fill"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Brands</span>
+            <h3 class="stat-value">{{ stats().brands }}</h3>
+          </div>
+          <a routerLink="/admin/brands" class="stat-footer">
+            <span>View brands</span>
+            <i class="bi bi-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- 🛒 Orders -->
+      <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="stat-card stat-card-orders">
+          <div class="stat-icon-wrapper bg-amber-subtle text-warning">
+            <i class="bi bi-cart-check-fill"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Orders</span>
+            <h3 class="stat-value">{{ stats().orders }}</h3>
+          </div>
+          <a routerLink="/admin/orders" class="stat-footer">
+            <span>Inspect orders</span>
+            <i class="bi bi-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- ❤️ Wishlist -->
+      <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="stat-card stat-card-wishlist">
+          <div class="stat-icon-wrapper bg-rose-subtle text-danger">
+            <i class="bi bi-heart-fill"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Wishlist</span>
+            <h3 class="stat-value">{{ stats().wishlist }}</h3>
+          </div>
+          <div class="stat-footer text-muted">
+            <span>Customer saves</span>
+            <i class="bi bi-bookmark-heart"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- 👤 Users -->
+      <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="stat-card stat-card-users">
+          <div class="stat-icon-wrapper bg-cyan-subtle text-info">
+            <i class="bi bi-people-fill"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Customers</span>
+            <h3 class="stat-value">{{ stats().users }}</h3>
+          </div>
+          <a routerLink="/admin/users" class="stat-footer">
+            <span>View customers</span>
+            <i class="bi bi-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Revenue Banner Card -->
+    <div class="card revenue-card border-0 shadow-sm mb-4">
+      <div class="card-body p-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div class="d-flex align-items-center gap-3">
+          <div class="revenue-icon-box">
+            <i class="bi bi-currency-rupee"></i>
+          </div>
+          <div>
+            <span class="text-uppercase small fw-bold text-muted letter-spacing-1">Total Sales Revenue</span>
+            <h2 class="revenue-amount mb-0">₹{{ stats().revenue.toLocaleString('en-IN') }}</h2>
+          </div>
+        </div>
+        <div class="d-flex gap-2">
+          <span class="badge bg-success bg-opacity-10 text-success border border-success-subtle px-3 py-2 rounded-pill fw-semibold">
+            <i class="bi bi-graph-up-arrow me-1"></i> Live Orders Sync
+          </span>
+          <a routerLink="/admin/orders" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+            View All Transactions
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Orders Data Table Card -->
+    <div class="card border-0 shadow-sm table-card">
+      <div class="card-header bg-white border-bottom py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+          <h5 class="fw-bold text-dark mb-0">
+            <i class="bi bi-cart3 text-primary me-2"></i> Recent Customer Orders
+          </h5>
+          <span class="text-muted small">Latest purchases processed in MySQL database</span>
+        </div>
+        <a routerLink="/admin/orders" class="btn btn-sm btn-link text-decoration-none fw-semibold text-primary">
+          View All Orders <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+      </div>
+
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light text-uppercase small text-muted">
+              <tr>
+                <th class="ps-4 py-3" style="width: 100px;">Order ID</th>
+                <th>Customer</th>
+                <th>Product Item</th>
+                <th>Quantity</th>
+                <th>Total Price</th>
+                <th>Status</th>
+                <th class="text-end pe-4" style="width: 120px;">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (order of recentOrders(); track order.id) {
+                <tr>
+                  <td class="ps-4 fw-bold text-dark">#ORD-{{ order.id }}</td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="avatar-sm bg-light text-secondary rounded-circle">
+                        <i class="bi bi-person-fill"></i>
+                      </div>
+                      <span class="fw-semibold text-dark">User #{{ order.user_id }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge bg-light text-dark border px-2.5 py-1.5 fw-medium">
+                      <i class="bi bi-box-seam me-1 text-primary"></i> Product #{{ order.product_id }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="fw-semibold">{{ order.quantity }} units</span>
+                  </td>
+                  <td>
+                    <span class="fw-bold text-dark">₹{{ order.total_price.toLocaleString('en-IN') }}</span>
+                  </td>
+                  <td>
+                    <span class="badge-status-pill {{ getStatusBadgeClass(order.status) }}">
+                      <span class="dot"></span> {{ order.status || 'Pending' }}
+                    </span>
+                  </td>
+                  <td class="text-end pe-4">
+                    <a routerLink="/admin/orders" class="btn btn-sm btn-outline-primary rounded-pill px-2.5 py-1">
+                      Details
+                    </a>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="7" class="text-center py-5 text-muted">
+                    <i class="bi bi-cart-x fs-1 d-block mb-2 text-secondary"></i>
+                    <h6 class="fw-bold mb-1">No Orders Found</h6>
+                    <p class="small mb-0">Customer transactions will show here once orders are placed.</p>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+</div>

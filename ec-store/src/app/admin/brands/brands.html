@@ -1,0 +1,213 @@
+<div class="container-fluid p-0">
+  <!-- Page Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 fw-bold text-dark mb-1">Brand Management</h1>
+      <p class="text-muted small mb-0">Manage manufacturer brands and associate them with subcategories</p>
+    </div>
+    <div class="mt-3 mt-sm-0">
+      <a routerLink="/admin/brands/create" class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm">
+        <i class="bi bi-plus-circle me-1"></i> Add Brand
+      </a>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  @if (successMessage()) {
+    <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 rounded-3 mb-4" role="alert">
+      <div class="d-flex align-items-center">
+        <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+        <div>{{ successMessage() }}</div>
+        <button type="button" class="btn-close ms-auto" (click)="successMessage.set(null)"></button>
+      </div>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0 rounded-3 mb-4" role="alert">
+      <div class="d-flex align-items-center">
+        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+        <div>{{ errorMessage() }}</div>
+        <button type="button" class="btn-close ms-auto" (click)="errorMessage.set(null)"></button>
+      </div>
+    </div>
+  }
+
+  <!-- Data Table Card -->
+  <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+    <!-- Filter & Search Bar -->
+    <div class="card-header bg-white border-bottom py-3">
+      <div class="row g-3 align-items-center justify-content-between">
+        <div class="col-md-5 col-sm-6">
+          <div class="input-group">
+            <span class="input-group-text bg-light border-end-0 text-muted">
+              <i class="bi bi-search"></i>
+            </span>
+            <input
+              type="text"
+              class="form-control border-start-0 bg-light"
+              placeholder="Search brand name..."
+              [ngModel]="searchQuery()"
+              (ngModelChange)="onSearch($event)"
+            />
+            @if (searchQuery()) {
+              <button class="btn btn-light border border-start-0 text-muted" (click)="onSearch('')">
+                <i class="bi bi-x-lg small"></i>
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="col-md-4 col-sm-6">
+          <select
+            class="form-select bg-light"
+            [ngModel]="selectedSubcategoryFilter()"
+            (ngModelChange)="setSubcategoryFilter($event)"
+          >
+            <option value="all">Filter by SubCategory (All)</option>
+            @for (sub of activeSubcategories(); track sub.id) {
+              <option [value]="sub.id">🌿 {{ sub.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="col-md-3 text-md-end text-muted small">
+          Total: <span class="badge bg-primary rounded-pill px-2.5 py-1">{{ filteredBrands().length }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table Body -->
+    <div class="card-body p-0">
+      @if (isLoading()) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading brands...</span>
+          </div>
+          <p class="text-muted mt-2 small">Loading brands from server...</p>
+        </div>
+      } @else {
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light text-uppercase small text-muted">
+              <tr>
+                <th class="ps-4 py-3" style="width: 90px;">ID</th>
+                <th>Brand Name</th>
+                <th>SubCategory Mapping</th>
+                <th>Status</th>
+                <th class="text-end pe-4" style="width: 140px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (brand of paginatedBrands(); track brand.id) {
+                <tr>
+                  <td class="ps-4 fw-bold text-muted">#BRD-{{ brand.id }}</td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="brand-avatar-box">
+                        {{ brand.name.slice(0, 1).toUpperCase() }}
+                      </div>
+                      <span class="fw-semibold text-dark">{{ brand.name }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge bg-light text-dark border px-2.5 py-1.5 fw-medium">
+                      <i class="bi bi-diagram-3 me-1 text-secondary"></i>
+                      {{ brand.associatedSubcategoryName }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge bg-success bg-opacity-10 text-success border border-success-subtle rounded-pill px-2.5 py-1">
+                      <span class="status-dot-sm bg-success me-1"></span> Active
+                    </span>
+                  </td>
+                  <td class="text-end pe-4">
+                    <a
+                      [routerLink]="['/admin/brands/edit', brand.id]"
+                      class="btn btn-sm btn-outline-primary rounded-circle me-1 action-btn"
+                      title="Edit Brand"
+                    >
+                      <i class="bi bi-pencil-fill"></i>
+                    </a>
+                    <button
+                      class="btn btn-sm btn-outline-danger rounded-circle action-btn"
+                      (click)="openDeleteModal(brand)"
+                      title="Delete Brand"
+                      type="button"
+                    >
+                      <i class="bi bi-trash3-fill"></i>
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5" class="text-center py-5 text-muted">
+                    <i class="bi bi-award fs-1 d-block mb-2 text-secondary"></i>
+                    <h6 class="fw-bold mb-1">No Brands Found</h6>
+                    <p class="small mb-3">Adjust your filters or register a new brand.</p>
+                    <a routerLink="/admin/brands/create" class="btn btn-sm btn-primary rounded-pill px-3">
+                      <i class="bi bi-plus-circle me-1"></i> Add Brand
+                    </a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        @if (filteredBrands().length > pageSize()) {
+          <div class="card-footer bg-white border-top py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <span class="text-muted small">
+              Page {{ currentPage() }} of {{ totalPages() }} ({{ filteredBrands().length }} total records)
+            </span>
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item" [class.disabled]="currentPage() === 1">
+                <button class="page-link" (click)="setPage(currentPage() - 1)">Previous</button>
+              </li>
+              @for (p of [].constructor(totalPages()); track $index) {
+                <li class="page-item" [class.active]="currentPage() === ($index + 1)">
+                  <button class="page-link" (click)="setPage($index + 1)">{{ $index + 1 }}</button>
+                </li>
+              }
+              <li class="page-item" [class.disabled]="currentPage() === totalPages()">
+                <button class="page-link" (click)="setPage(currentPage() + 1)">Next</button>
+              </li>
+            </ul>
+          </div>
+        }
+      }
+    </div>
+  </div>
+
+  <!-- Delete Modal -->
+  @if (isDeleteModalOpen() && brandToDelete()) {
+    <div class="custom-modal-backdrop" (click)="closeDeleteModal()"></div>
+    <div class="custom-modal-dialog modal-sm">
+      <div class="modal-content shadow-lg border-0 rounded-4 text-center p-4">
+        <div class="mb-3">
+          <div class="delete-icon-box mx-auto">
+            <i class="bi bi-trash3-fill text-danger fs-2"></i>
+          </div>
+        </div>
+        <h5 class="fw-bold mb-2">Delete Brand?</h5>
+        <p class="text-muted small mb-4">
+          Are you sure you want to remove brand
+          <strong class="text-dark">"{{ brandToDelete()?.name }}"</strong>?
+        </p>
+        <div class="d-flex justify-content-center gap-2">
+          <button type="button" class="btn btn-light border px-3 rounded-pill" (click)="closeDeleteModal()" [disabled]="isSubmitting()">
+            Cancel
+          </button>
+          <button type="button" class="btn btn-danger px-4 rounded-pill" (click)="confirmDelete()" [disabled]="isSubmitting()">
+            @if (isSubmitting()) {
+              <span class="spinner-border spinner-border-sm me-1"></span> Deleting...
+            } @else {
+              Delete
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,78 @@
+<main class="auth-page">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="auth-icon">🔐</div>
+      <h1>Welcome Back</h1>
+      <p>Log in to access your orders, wishlist and cart</p>
+    </div>
+
+    @if (successMessage) {
+      <div class="alert-success">
+        <span>✅</span>
+        <p>{{ successMessage }}</p>
+      </div>
+    }
+
+    @if (errorMessage) {
+      <div class="alert-error">
+        <span>⚠️</span>
+        <p>{{ errorMessage }}</p>
+      </div>
+    }
+
+    <form (ngSubmit)="onLogin()" class="auth-form" novalidate>
+      <div class="form-group">
+        <label for="email">Email Address <span class="required">*</span></label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          [(ngModel)]="email"
+          [class.input-invalid]="!!fieldErrors.email"
+          placeholder="name@example.com"
+          required
+          autocomplete="email"
+        />
+        @if (fieldErrors.email) {
+          <div class="field-error">
+            <span>⚠️</span> {{ fieldErrors.email }}
+          </div>
+        }
+      </div>
+
+      <div class="form-group">
+        <div class="label-row">
+          <label for="password">Password <span class="required">*</span></label>
+        </div>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          [(ngModel)]="password"
+          [class.input-invalid]="!!fieldErrors.password"
+          placeholder="••••••••"
+          required
+          autocomplete="current-password"
+        />
+        @if (fieldErrors.password) {
+          <div class="field-error">
+            <span>⚠️</span> {{ fieldErrors.password }}
+          </div>
+        }
+      </div>
+
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="isLoading"
+        [class.btn-disabled]="isLoading"
+      >
+        {{ isLoading ? 'Logging in...' : 'Sign In' }}
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <p>New to EC Store? <a routerLink="/register" [queryParams]="returnUrl ? { returnUrl } : null">Create an account</a></p>
+    </div>
+  </div>
+</main>

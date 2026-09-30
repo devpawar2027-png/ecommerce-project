@@ -1,0 +1,283 @@
+<div class="container-fluid">
+  <!-- Page Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 fw-bold text-dark mb-0">Customer Orders Management</h1>
+      <p class="text-muted small mb-0">Monitor online customer orders, update delivery milestones and process cancellations</p>
+    </div>
+    <div class="mt-2 mt-sm-0">
+      <button class="btn btn-outline-secondary btn-sm bg-white shadow-sm" (click)="loadData()" type="button">
+        <i class="bi bi-arrow-clockwise me-1"></i> Refresh Orders
+      </button>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  @if (successMessage()) {
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+      <i class="bi bi-check-circle-fill me-2"></i> {{ successMessage() }}
+      <button type="button" class="btn-close" (click)="successMessage.set(null)"></button>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ errorMessage() }}
+      <button type="button" class="btn-close" (click)="errorMessage.set(null)"></button>
+    </div>
+  }
+
+  <!-- Main Card -->
+  <div class="card border-0 shadow-sm">
+    <!-- Filters Bar -->
+    <div class="card-header bg-white border-bottom py-3">
+      <div class="row g-3 align-items-center justify-content-between">
+        <div class="col-md-5 col-sm-6">
+          <div class="input-group">
+            <span class="input-group-text bg-light border-end-0 text-muted">
+              <i class="bi bi-search"></i>
+            </span>
+            <input
+              type="text"
+              class="form-control border-start-0 bg-light"
+              placeholder="Search by Order ID, customer, product..."
+              [ngModel]="searchQuery()"
+              (ngModelChange)="onSearch($event)"
+            />
+          </div>
+        </div>
+
+        <div class="col-md-4 col-sm-6">
+          <select
+            class="form-select bg-light"
+            [ngModel]="statusFilter()"
+            (ngModelChange)="onStatusFilterChange($event)"
+          >
+            <option value="all">All Order Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="shipped">Shipped</option>
+            <option value="delivered">Delivered</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+
+        <div class="col-md-3 text-md-end text-muted small">
+          Total Orders: <span class="badge bg-primary rounded-pill">{{ filteredOrders().length }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table Body -->
+    <div class="card-body p-0">
+      @if (isLoading()) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading orders...</span>
+          </div>
+          <p class="text-muted mt-2 small">Loading order history...</p>
+        </div>
+      } @else {
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light text-uppercase small text-muted">
+              <tr>
+                <th class="ps-4 py-3">Order ID</th>
+                <th>Customer</th>
+                <th>Item Purchased</th>
+                <th>Quantity</th>
+                <th>Total Bill</th>
+                <th>Current Status</th>
+                <th class="text-end pe-4">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (order of paginatedOrders(); track order.id) {
+                <tr>
+                  <td class="ps-4 fw-bold text-primary">#ORD-{{ order.id }}</td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="user-avatar-mini">
+                        <i class="bi bi-person-fill text-muted"></i>
+                      </div>
+                      <div>
+                        <div class="fw-semibold text-dark">{{ getUserName(order.user_id) }}</div>
+                        <small class="text-muted">{{ getUserEmail(order.user_id) }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="fw-medium text-dark">{{ getProductName(order.product_id) }}</div>
+                    <small class="text-muted">Item ID: #{{ order.product_id }}</small>
+                  </td>
+                  <td><span class="fw-bold">{{ order.quantity }}</span> units</td>
+                  <td>
+                    <span class="fw-bold text-dark">₹{{ order.total_price.toLocaleString('en-IN') }}</span>
+                  </td>
+                  <td>
+                    <span class="badge {{ getStatusBadgeClass(order.status) }} rounded-pill px-2.5 py-1.5 fw-semibold shadow-xs">
+                      {{ order.status || 'Pending' }}
+                    </span>
+                  </td>
+                  <td class="text-end pe-4">
+                    <button
+                      class="btn btn-sm btn-outline-primary me-2"
+                      (click)="openDetailsModal(order)"
+                      title="View & Update Status"
+                      type="button"
+                    >
+                      <i class="bi bi-eye-fill me-1"></i> Details
+                    </button>
+                    <button
+                      class="btn btn-sm btn-outline-danger"
+                      (click)="openDeleteModal(order)"
+                      title="Cancel Order"
+                      type="button"
+                    >
+                      <i class="bi bi-x-circle-fill"></i>
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="7" class="text-center py-5 text-muted">
+                    <i class="bi bi-cart-x fs-1 d-block mb-2 text-secondary"></i>
+                    <h6 class="fw-bold mb-1">No Orders Match Filter</h6>
+                    <p class="small mb-0">No transaction records match the active criteria.</p>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        @if (filteredOrders().length > pageSize()) {
+          <div class="card-footer bg-white border-top py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <span class="text-muted small">
+              Page {{ currentPage() }} of {{ totalPages() }} ({{ filteredOrders().length }} total orders)
+            </span>
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item" [class.disabled]="currentPage() === 1">
+                <button class="page-link" (click)="setPage(currentPage() - 1)">Previous</button>
+              </li>
+              @for (p of [].constructor(totalPages()); track $index) {
+                <li class="page-item" [class.active]="currentPage() === ($index + 1)">
+                  <button class="page-link" (click)="setPage($index + 1)">{{ $index + 1 }}</button>
+                </li>
+              }
+              <li class="page-item" [class.disabled]="currentPage() === totalPages()">
+                <button class="page-link" (click)="setPage(currentPage() + 1)">Next</button>
+              </li>
+            </ul>
+          </div>
+        }
+      }
+    </div>
+  </div>
+
+  <!-- Order Details & Status Update Modal -->
+  @if (isDetailsModalOpen() && selectedOrder()) {
+    <div class="custom-modal-backdrop" (click)="closeDetailsModal()"></div>
+    <div class="custom-modal-dialog modal-md">
+      <div class="modal-content shadow-lg border-0 rounded-3">
+        <div class="modal-header border-bottom py-3">
+          <h5 class="modal-title fw-bold text-dark d-flex align-items-center gap-2">
+            <i class="bi bi-receipt text-primary"></i> Order Details #ORD-{{ selectedOrder()?.id }}
+          </h5>
+          <button type="button" class="btn-close" (click)="closeDetailsModal()"></button>
+        </div>
+        <div class="modal-body p-4">
+          <!-- Summary Grid -->
+          <div class="bg-light rounded-3 p-3 mb-4">
+            <div class="row g-3">
+              <div class="col-6">
+                <small class="text-muted d-block">Customer</small>
+                <span class="fw-semibold text-dark">{{ getUserName(selectedOrder()!.user_id) }}</span>
+              </div>
+              <div class="col-6">
+                <small class="text-muted d-block">Customer Email</small>
+                <span class="fw-semibold text-dark">{{ getUserEmail(selectedOrder()!.user_id) || 'Not recorded' }}</span>
+              </div>
+              <div class="col-6">
+                <small class="text-muted d-block">Purchased Product</small>
+                <span class="fw-semibold text-dark">{{ getProductName(selectedOrder()!.product_id) }}</span>
+              </div>
+              <div class="col-6">
+                <small class="text-muted d-block">Quantity</small>
+                <span class="fw-semibold text-dark">{{ selectedOrder()!.quantity }} pcs</span>
+              </div>
+              <div class="col-12 border-top pt-2">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="fw-bold text-dark">Total Amount Due/Paid:</span>
+                  <span class="fs-5 fw-bold text-primary">₹{{ selectedOrder()!.total_price.toLocaleString('en-IN') }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Update Status Section -->
+          <div class="mb-3">
+            <label for="orderStatusSelect" class="form-label fw-bold text-dark">
+              Update Order Status
+            </label>
+            <select
+              id="orderStatusSelect"
+              class="form-select form-select-lg fs-6"
+              [(ngModel)]="selectedStatus"
+            >
+              @for (st of statuses; track st) {
+                <option [value]="st">{{ st }}</option>
+              }
+            </select>
+            <div class="form-text">Changing status immediately records the dispatch progression.</div>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2 mt-4 pt-2 border-top">
+            <button type="button" class="btn btn-light border px-3" (click)="closeDetailsModal()" [disabled]="isSubmitting()">
+              Close
+            </button>
+            <button type="button" class="btn btn-primary px-4" (click)="updateOrderStatus()" [disabled]="isSubmitting()">
+              @if (isSubmitting()) {
+                <span class="spinner-border spinner-border-sm me-1"></span> Updating...
+              } @else {
+                <i class="bi bi-check-circle me-1"></i> Update Status
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Delete Modal -->
+  @if (isDeleteModalOpen() && orderToDelete()) {
+    <div class="custom-modal-backdrop" (click)="closeDeleteModal()"></div>
+    <div class="custom-modal-dialog modal-sm">
+      <div class="modal-content shadow-lg border-0 rounded-3 text-center p-4">
+        <div class="mb-3">
+          <div class="delete-icon-box mx-auto">
+            <i class="bi bi-x-octagon-fill text-danger fs-2"></i>
+          </div>
+        </div>
+        <h5 class="fw-bold mb-2">Cancel / Delete Order?</h5>
+        <p class="text-muted small mb-4">
+          Are you sure you want to soft delete order
+          <strong class="text-dark">#ORD-{{ orderToDelete()?.id }}</strong>?
+        </p>
+        <div class="d-flex justify-content-center gap-2">
+          <button type="button" class="btn btn-light border px-3" (click)="closeDeleteModal()" [disabled]="isSubmitting()">
+            Cancel
+          </button>
+          <button type="button" class="btn btn-danger px-4" (click)="confirmDelete()" [disabled]="isSubmitting()">
+            @if (isSubmitting()) {
+              <span class="spinner-border spinner-border-sm me-1"></span> Deleting...
+            } @else {
+              Delete
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

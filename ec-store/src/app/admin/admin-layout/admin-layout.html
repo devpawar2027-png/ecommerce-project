@@ -1,0 +1,219 @@
+<div class="admin-wrapper" [class.sidebar-collapse]="sidebarCollapsed()">
+  <!-- Mobile Sidebar Backdrop -->
+  @if (mobileSidebarOpen()) {
+    <div class="sidebar-backdrop" (click)="closeMobileSidebar()"></div>
+  }
+
+  <!-- AdminLTE Dark Left Sidebar -->
+  <aside class="main-sidebar" [class.mobile-open]="mobileSidebarOpen()">
+    <!-- Brand Logo -->
+    <a routerLink="/admin/dashboard" class="brand-link">
+      <div class="brand-icon">
+        <i class="bi bi-shield-lock-fill"></i>
+      </div>
+      <span class="brand-text">Dev Store <span class="badge bg-primary">ADMIN</span></span>
+    </a>
+
+    <!-- Sidebar Content -->
+    <div class="sidebar">
+      <!-- User Panel -->
+      <div class="user-panel mt-3 pb-3 mb-3 d-flex align-items-center">
+        <div class="image">
+          <img
+            [src]="currentAdmin()?.avatar || 'assets/images/default-user.png'"
+            class="img-circle elevation-2"
+            alt="Admin Avatar"
+          />
+        </div>
+        <div class="info">
+          <a class="d-block text-white text-decoration-none fw-semibold">
+            {{ currentAdmin()?.name || 'Dev Admin' }}
+          </a>
+          <small class="text-success d-flex align-items-center gap-1">
+            <span class="status-dot"></span> Online
+          </small>
+        </div>
+      </div>
+
+      <!-- Navigation Menu -->
+      <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
+          <li class="nav-header text-uppercase text-secondary small fw-bold px-3 py-2">
+            Main Navigation
+          </li>
+
+          <li class="nav-item">
+            <a
+              routerLink="/admin/dashboard"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: true }"
+              class="nav-link"
+            >
+              <i class="nav-icon bi bi-speedometer2"></i>
+              <p>Dashboard</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a
+              routerLink="/admin/categories"
+              routerLinkActive="active"
+              class="nav-link"
+            >
+              <i class="nav-icon bi bi-tags-fill"></i>
+              <p>Categories</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a
+              routerLink="/admin/subcategories"
+              routerLinkActive="active"
+              class="nav-link"
+            >
+              <i class="nav-icon bi bi-diagram-3-fill"></i>
+              <p>SubCategories</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a
+              routerLink="/admin/brands"
+              routerLinkActive="active"
+              class="nav-link"
+            >
+              <i class="nav-icon bi bi-award-fill"></i>
+              <p>Brands</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a
+              routerLink="/admin/products"
+              routerLinkActive="active"
+              class="nav-link"
+            >
+              <i class="nav-icon bi bi-box-seam-fill"></i>
+              <p>Products</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a
+              routerLink="/admin/orders"
+              routerLinkActive="active"
+              class="nav-link"
+            >
+              <i class="nav-icon bi bi-cart-check-fill"></i>
+              <p>Orders</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a
+              routerLink="/admin/users"
+              routerLinkActive="active"
+              class="nav-link"
+            >
+              <i class="nav-icon bi bi-people-fill"></i>
+              <p>Users</p>
+            </a>
+          </li>
+
+          <li class="nav-header text-uppercase text-secondary small fw-bold px-3 pt-3 pb-1">
+            Storefront
+          </li>
+
+          <li class="nav-item">
+            <a routerLink="/" target="_blank" class="nav-link text-info">
+              <i class="nav-icon bi bi-shop"></i>
+              <p>Live Store <i class="bi bi-box-arrow-up-right ms-1 small"></i></p>
+            </a>
+          </li>
+
+          <li class="nav-item mt-3">
+            <a (click)="logout()" role="button" class="nav-link text-danger">
+              <i class="nav-icon bi bi-box-arrow-right"></i>
+              <p>Sign Out</p>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- Content Wrapper -->
+  <div class="content-wrapper">
+    <!-- White Top Navbar -->
+    <nav class="main-header navbar navbar-expand navbar-white navbar-light border-bottom bg-white px-3 sticky-top">
+      <ul class="navbar-nav align-items-center">
+        <li class="nav-item">
+          <button
+            class="btn btn-link text-dark nav-link p-1"
+            (click)="toggleSidebar()"
+            type="button"
+            aria-label="Toggle Sidebar"
+          >
+            <i class="bi bi-list fs-4"></i>
+          </button>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block ms-2">
+          <span class="text-secondary small">Dev Store</span>
+          <span class="mx-1 text-muted">/</span>
+          <span class="fw-semibold text-dark">{{ currentRoute() }}</span>
+        </li>
+      </ul>
+
+      <!-- Right Navbar Links -->
+      <ul class="navbar-nav ms-auto align-items-center gap-3">
+        <!-- Store Quick Link -->
+        <li class="nav-item d-none d-md-block">
+          <a routerLink="/" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+            <i class="bi bi-eye me-1"></i> View Store
+          </a>
+        </li>
+
+        <!-- User Menu Dropdown -->
+        <li class="nav-item dropdown">
+          <div class="d-flex align-items-center gap-2 cursor-pointer">
+            <img
+              [src]="currentAdmin()?.avatar || 'assets/images/default-user.png'"
+              class="rounded-circle border"
+              width="34"
+              height="34"
+              alt="Admin"
+            />
+            <div class="d-none d-lg-block text-start lh-sm">
+              <div class="small fw-bold text-dark">{{ currentAdmin()?.name || 'Administrator' }}</div>
+              <small class="text-muted" style="font-size: 0.72rem;">Super Admin</small>
+            </div>
+            <button
+              class="btn btn-sm btn-outline-danger ms-2"
+              (click)="logout()"
+              title="Logout"
+              type="button"
+            >
+              <i class="bi bi-power"></i>
+            </button>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Main Content Outlet Container -->
+    <main class="content p-3 p-md-4">
+      <router-outlet></router-outlet>
+    </main>
+
+    <!-- AdminLTE Footer -->
+    <footer class="main-footer border-top bg-white px-3 py-2 text-muted small d-flex flex-wrap justify-content-between align-items-center">
+      <div>
+        <strong>Copyright &copy; 2026 <a routerLink="/admin/dashboard" class="text-decoration-none text-primary">Dev Store</a>.</strong>
+        All rights reserved.
+      </div>
+      <div>
+        <b>Admin Version</b> 3.2.0
+      </div>
+    </footer>
+  </div>
+</div>

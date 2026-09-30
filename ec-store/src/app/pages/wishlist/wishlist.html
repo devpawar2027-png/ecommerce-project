@@ -1,0 +1,67 @@
+<app-navbar></app-navbar>
+
+<main class="wishlist-page">
+  <div class="wishlist-container">
+    <div class="wishlist-header">
+      <h1>My Wishlist ({{ wishlistCount() }} {{ wishlistCount() === 1 ? 'item' : 'items' }})</h1>
+    </div>
+
+    @if (wishlistItems().length > 0) {
+      <div class="wishlist-grid">
+        @for (item of wishlistItems(); track item.id) {
+          <article class="wishlist-card" (click)="viewProduct(item.id)">
+            <button
+              type="button"
+              class="btn-delete"
+              (click)="removeFromWishlist(item.id); $event.stopPropagation()"
+              title="Remove from wishlist"
+            >
+              ✕
+            </button>
+
+            <div class="card-media">
+              <img [src]="item.image" [alt]="item.name" />
+            </div>
+
+            <div class="card-info">
+              <span class="brand">{{ item.brand }}</span>
+              <h3>{{ item.name }}</h3>
+
+              <div class="price-row">
+                <strong>₹{{ item.price.toLocaleString('en-IN') }}</strong>
+                @if (item.oldPrice) {
+                  <s>₹{{ item.oldPrice.toLocaleString('en-IN') }}</s>
+                  <span class="off-badge">{{ item.discount }}% OFF</span>
+                }
+              </div>
+
+              <div class="card-actions">
+                <button
+                  type="button"
+                  class="btn-cart"
+                  (click)="moveToCart(item); $event.stopPropagation()"
+                >
+                  🛒 Move to Cart
+                </button>
+                <button
+                  type="button"
+                  class="btn-view"
+                  (click)="viewProduct(item.id)"
+                >
+                  View Details
+                </button>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    } @else {
+      <div class="empty-wishlist">
+        <span class="heart-icon">🤍</span>
+        <h2>Your wishlist is empty</h2>
+        <p>Explore our products and tap the heart icon on any product to save it here!</p>
+        <a routerLink="/" class="btn-shop">Explore Products</a>
+      </div>
+    }
+  </div>
+</main>

@@ -1,0 +1,232 @@
+<app-navbar></app-navbar>
+
+<main class="products-page">
+  @if (cartNotice(); as notice) {
+    <div class="toast-notice">
+      <span>✓</span>
+      <p>{{ notice }}</p>
+    </div>
+  }
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb-bar" aria-label="Breadcrumb">
+    <a routerLink="/" class="crumb-link">Home</a>
+    <span class="crumb-sep">/</span>
+    @if (isSearch()) {
+      <span class="crumb-link">Search</span>
+      <span class="crumb-sep">/</span>
+      <span class="crumb-current">"{{ searchQuery() }}"</span>
+    } @else if (categorySlug()) {
+      <a [routerLink]="['/category', categorySlug()]" class="crumb-link">{{ categoryName() }}</a>
+      @if (subcategorySlug()) {
+        <span class="crumb-sep">/</span>
+        <span class="crumb-current">{{ subcategoryName() }}</span>
+      }
+    } @else {
+      <span class="crumb-current">All Products</span>
+    }
+  </nav>
+
+  <!-- Page Header & Controls -->
+  <header class="products-header">
+    <div class="header-left">
+      @if (isSearch()) {
+        <h1>Results for "{{ searchQuery() }}"</h1>
+        <p class="results-meta">
+          Showing {{ filteredProducts().length }} {{ filteredProducts().length === 1 ? 'product' : 'products' }}
+        </p>
+      } @else {
+        <h1>{{ subcategorySlug() ? subcategoryName() : (categoryName() || 'All Products') }}</h1>
+        <p class="results-meta">
+          Showing {{ filteredProducts().length }} {{ filteredProducts().length === 1 ? 'product' : 'products' }}
+          @if (categorySlug()) {
+            in {{ categoryName() }}
+          }
+        </p>
+      }
+    </div>
+
+    <!-- Controls: Brand filter & Sorting -->
+    <div class="header-controls">
+      @if (availableBrands().length > 1) {
+        <div class="control-group">
+          <label for="brand-filter">Brand:</label>
+          <select
+            id="brand-filter"
+            [ngModel]="selectedBrand()"
+            (ngModelChange)="selectedBrand.set($event)"
+          >
+            <option value="all">All Brands</option>
+            @for (b of availableBrands(); track b) {
+              <option [value]="b">{{ b }}</option>
+            }
+          </select>
+        </div>
+      }
+
+      <div class="control-group">
+        <label for="sort-select">Sort by:</label>
+        <select
+          id="sort-select"
+          [ngModel]="sortBy()"
+          (ngModelChange)="sortBy.set($event)"
+        >
+          <option value="relevance">Popularity</option>
+          <option value="price-low">Price: Low to High</option>
+          <option value="price-high">Price: High to Low</option>
+          <option value="rating">Customer Rating</option>
+          <option value="discount">Highest Discount</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- Brand Flow Pills: Category -> SubCategory -> Brand -->
+  @if (dynamicBrands().length > 0) {
+    <div class="brand-flow-bar mb-4">
+      <span class="brand-flow-label">Filter by Brand:</span>
+      <div class="brand-pills">
+        <button
+          type="button"
+          class="btn-brand-pill"
+          [class.active]="selectedBrand() === 'all'"
+          (click)="selectBrandFilter('all')"
+        >
+          All Brands
+        </button>
+        @for (b of dynamicBrands(); track b.id) {
+          <button
+            type="button"
+            class="btn-brand-pill"
+            [class.active]="selectedBrand().toLowerCase() === b.name.toLowerCase()"
+            (click)="selectBrandFilter(b.name)"
+          >
+            {{ b.name }}
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="products-grid">
+      @for (i of [1, 2, 3, 4]; track i) {
+        <div class="product-card skeleton-card">
+          <div class="skeleton-media"></div>
+          <div class="skeleton-body">
+            <div class="skeleton-line w-50"></div>
+            <div class="skeleton-line w-75"></div>
+            <div class="skeleton-line w-25"></div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (filteredProducts().length > 0) {
+    <!-- Product Grid -->
+    <div class="products-grid">
+      @for (product of filteredProducts(); track product.id) {
+        <article class="product-card" (click)="viewDetails(product.id)">
+          <!-- Wishlist Button -->
+          <button
+            type="button"
+            class="wish-btn"
+            [class.active]="isWished(product.id)"
+            (click)="toggleWishlist(product, $event)"
+            [attr.aria-label]="isWished(product.id) ? 'Remove from wishlist' : 'Add to wishlist'"
+          >
+            ♥
+          </button>
+
+          <!-- Discount Badge -->
+          @if ((product.discount || 0) > 0) {
+            <span class="discount-tag">{{ product.discount }}% OFF</span>
+          }
+
+          <!-- Product Image -->
+          <div class="product-media" style="position: relative;">
+            <img [src]="product.image" [alt]="product.name" (error)="handleImgError($event)" />
+            @if (isProductOutOfStock(product)) {
+              <div class="out-of-stock-overlay" style="position: absolute; bottom: 8px; left: 8px; background: rgba(220, 38, 38, 0.9); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">
+                Out of Stock
+              </div>
+            }
+          </div>
+
+          <!-- Product Info -->
+          <div class="product-info">
+            <span class="brand-tag">{{ product.brand || 'Brand' }}</span>
+            <h2 class="product-title">{{ product.name }}</h2>
+
+            <!-- Rating Stars & Reviews -->
+            <div class="rating-row">
+              <span class="rating-pill">
+                {{ product.rating || 4.8 }} ★
+              </span>
+              <span class="reviews-text">({{ (product.reviews || 120) | number }})</span>
+            </div>
+
+            <!-- Price & Old Price -->
+            <div class="price-row">
+              <span class="price-current">₹{{ product.price.toLocaleString('en-IN') }}</span>
+              @if ((product.oldPrice || 0) > product.price) {
+                <span class="price-old">₹{{ product.oldPrice?.toLocaleString('en-IN') }}</span>
+              }
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="card-actions">
+              <button
+                type="button"
+                class="btn-cart"
+                [disabled]="isProductOutOfStock(product)"
+                [class.btn-disabled]="isProductOutOfStock(product)"
+                (click)="addToCart(product, $event)"
+              >
+                {{ isProductOutOfStock(product) ? 'Out of Stock' : '🛒 Add To Cart' }}
+              </button>
+              <button
+                type="button"
+                class="btn-view"
+                (click)="viewDetails(product.id)"
+              >
+                View Details
+              </button>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  } @else {
+    <!-- Empty State -->
+    <div class="empty-state">
+      <div class="empty-icon">🔍</div>
+      @if (isSearch()) {
+        <h3>No products found for "{{ searchQuery() }}"</h3>
+        <p>Check your spelling or try searching with different keywords.</p>
+        <div class="empty-actions">
+          @if (selectedBrand() !== 'all') {
+            <button
+              type="button"
+              class="btn-reset"
+              (click)="selectedBrand.set('all')"
+            >
+              Clear Brand Filter
+            </button>
+          }
+          <a routerLink="/" class="btn-home">Browse All Categories</a>
+        </div>
+      } @else {
+        <h3>No products found</h3>
+        <p>There are no products currently matching your filter criteria.</p>
+        <button
+          type="button"
+          class="btn-reset"
+          (click)="selectedBrand.set('all')"
+        >
+          Clear Filters
+        </button>
+      }
+    </div>
+  }
+</main>

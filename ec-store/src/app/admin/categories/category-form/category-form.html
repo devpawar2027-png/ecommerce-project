@@ -1,0 +1,155 @@
+<div class="container-fluid p-0">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb mb-0 small">
+      <li class="breadcrumb-item">
+        <a routerLink="/admin/dashboard" class="text-decoration-none text-muted">
+          <i class="bi bi-house-door me-1"></i> Dashboard
+        </a>
+      </li>
+      <li class="breadcrumb-item">
+        <a routerLink="/admin/categories" class="text-decoration-none text-muted">Categories</a>
+      </li>
+      <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">
+        {{ isEditMode() ? 'Edit' : 'Create' }}
+      </li>
+    </ol>
+  </nav>
+
+  <!-- Page Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 fw-bold text-dark mb-1">
+        {{ isEditMode() ? 'Edit Category' : 'Create Category' }}
+      </h1>
+      <p class="text-muted small mb-0">
+        {{ isEditMode() ? 'Update existing category details and storefront settings' : 'Set up a new top-level department for your catalog' }}
+      </p>
+    </div>
+    <div class="mt-3 mt-sm-0">
+      <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3 shadow-sm bg-white me-2" (click)="onCancel()">
+        <i class="bi bi-arrow-left me-1"></i> Back to List
+      </button>
+    </div>
+  </div>
+
+  <!-- Error Alert -->
+  @if (errorMessage()) {
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0 rounded-3 mb-4" role="alert">
+      <div class="d-flex align-items-center">
+        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+        <div>{{ errorMessage() }}</div>
+        <button type="button" class="btn-close ms-auto" (click)="errorMessage.set(null)"></button>
+      </div>
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="card border-0 shadow-sm rounded-3 p-5 text-center">
+      <div class="spinner-border text-primary mx-auto" role="status">
+        <span class="visually-hidden">Loading category...</span>
+      </div>
+      <p class="text-muted mt-2 mb-0 small">Preloading category information...</p>
+    </div>
+  } @else {
+    <!-- Main Form Card -->
+    <div class="row">
+      <div class="col-xl-8 col-lg-9">
+        <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+          <div class="card-header bg-white border-bottom py-3 px-4">
+            <h5 class="fw-bold text-dark mb-0">
+              <i class="bi bi-card-heading text-primary me-2"></i> General Information
+            </h5>
+          </div>
+          <div class="card-body p-4">
+            <form (ngSubmit)="onSubmit()">
+              <!-- Category Name -->
+              <div class="mb-4">
+                <label for="categoryName" class="form-label fw-bold text-dark">
+                  Category Name <span class="text-danger">*</span>
+                </label>
+                <input
+                  id="categoryName"
+                  type="text"
+                  class="form-control form-control-lg form-input-custom"
+                  [class.input-invalid]="!!fieldErrors.name"
+                  placeholder="e.g. Electronics, Fashion, Home & Living..."
+                  [(ngModel)]="categoryName"
+                  name="categoryName"
+                  required
+                  autofocus
+                />
+                @if (fieldErrors.name) {
+                  <div class="field-error">
+                    <span>⚠️</span> {{ fieldErrors.name }}
+                  </div>
+                }
+                <div class="form-text mt-1 text-muted">
+                  The primary name customers will see in the top storefront navigation menu (2-100 characters).
+                </div>
+              </div>
+
+              <!-- Description -->
+              <div class="mb-4">
+                <label for="categoryDesc" class="form-label fw-bold text-dark">
+                  Description
+                </label>
+                <textarea
+                  id="categoryDesc"
+                  rows="4"
+                  class="form-control form-input-custom"
+                  placeholder="Provide an overview of the products included in this category department..."
+                  [(ngModel)]="description"
+                  name="categoryDesc"
+                ></textarea>
+                <div class="form-text mt-1 text-muted">
+                  Used for SEO meta descriptions and category banner headers.
+                </div>
+              </div>
+
+              <!-- Status -->
+              <div class="mb-4">
+                <label for="categoryStatus" class="form-label fw-bold text-dark">
+                  Status
+                </label>
+                <select
+                  id="categoryStatus"
+                  class="form-select form-input-custom"
+                  [(ngModel)]="status"
+                  name="categoryStatus"
+                >
+                  <option value="active">Active (Visible in storefront)</option>
+                  <option value="inactive">Inactive (Hidden from customers)</option>
+                </select>
+              </div>
+
+              <!-- Form Buttons -->
+              <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                <button
+                  type="button"
+                  class="btn btn-light border px-4 py-2 rounded-pill fw-semibold"
+                  (click)="onCancel()"
+                  [disabled]="isSubmitting()"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  class="btn btn-primary px-4 py-2 rounded-pill fw-bold shadow-sm"
+                  [disabled]="isSubmitting() || !categoryName.trim()"
+                >
+                  @if (isSubmitting()) {
+                    <span class="spinner-border spinner-border-sm me-1"></span> Saving...
+                  } @else {
+                    <i class="bi bi-check2-circle me-1"></i> {{ isEditMode() ? 'Save Changes' : 'Save Category' }}
+                  }
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
