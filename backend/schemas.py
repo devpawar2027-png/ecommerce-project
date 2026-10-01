@@ -91,6 +91,24 @@ class SignupUser(BaseModel):
         return self
 
 
+# Pre-Creation Signup Request (Step 1)
+class SignupInitiateRequest(SignupUser):
+    pass
+
+
+# Post-Verification Signup Request (Step 2)
+class SignupCompleteRequest(SignupUser):
+    otp: str = Field(..., min_length=4, max_length=4)
+
+    @field_validator("otp")
+    @classmethod
+    def validate_otp(cls, v: str) -> str:
+        clean_otp = v.strip()
+        if not re.match(r"^[0-9]{4}$", clean_otp):
+            raise ValueError("OTP must be exactly 4 numeric digits.")
+        return clean_otp
+
+
 # Customer Login
 class LoginUser(BaseModel):
     email: EmailStr
@@ -100,6 +118,62 @@ class LoginUser(BaseModel):
     @classmethod
     def normalize_email(cls, v: EmailStr) -> str:
         return str(v).strip().lower()
+
+
+# OTP Schemas
+class SendOtpRequest(BaseModel):
+    mobile: str = Field(...)
+    purpose: str = "login"
+
+    @field_validator("mobile")
+    @classmethod
+    def validate_mobile(cls, v: str) -> str:
+        clean_num = re.sub(r"\D", "", v.strip())
+        if not re.match(r"^[0-9]{10}$", clean_num):
+            raise ValueError("Mobile number must be exactly 10 digits.")
+        return clean_num
+
+
+class VerifyOtpRequest(BaseModel):
+    mobile: str = Field(...)
+    otp: str = Field(...)
+
+    @field_validator("mobile")
+    @classmethod
+    def validate_mobile(cls, v: str) -> str:
+        clean_num = re.sub(r"\D", "", v.strip())
+        if not re.match(r"^[0-9]{10}$", clean_num):
+            raise ValueError("Mobile number must be exactly 10 digits.")
+        return clean_num
+
+    @field_validator("otp")
+    @classmethod
+    def validate_otp(cls, v: str) -> str:
+        clean_otp = v.strip()
+        if not re.match(r"^[0-9]{4}$", clean_otp):
+            raise ValueError("OTP must be exactly 4 numeric digits.")
+        return clean_otp
+
+
+class LoginOtpRequest(BaseModel):
+    mobile: str = Field(...)
+    otp: str = Field(...)
+
+    @field_validator("mobile")
+    @classmethod
+    def validate_mobile(cls, v: str) -> str:
+        clean_num = re.sub(r"\D", "", v.strip())
+        if not re.match(r"^[0-9]{10}$", clean_num):
+            raise ValueError("Mobile number must be exactly 10 digits.")
+        return clean_num
+
+    @field_validator("otp")
+    @classmethod
+    def validate_otp(cls, v: str) -> str:
+        clean_otp = v.strip()
+        if not re.match(r"^[0-9]{4}$", clean_otp):
+            raise ValueError("OTP must be exactly 4 numeric digits.")
+        return clean_otp
 
 
 # Profile Update

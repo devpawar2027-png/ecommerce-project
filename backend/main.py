@@ -21,11 +21,14 @@ from faq import router as faq_router
 from blog import router as blog_router
 from contact import router as contact_router
 from about import router as about_router
+from otp import router as otp_router
 
 # Create tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Ecommerce API", version="2.0.0")
+
+from fastapi.encoders import jsonable_encoder
 
 # Custom validation error handler for friendly client-facing errors
 @app.exception_handler(RequestValidationError)
@@ -40,7 +43,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content={
             "detail": "; ".join(errors),
-            "errors": exc.errors()
+            "errors": jsonable_encoder(exc.errors())
         }
     )
 
@@ -77,6 +80,7 @@ app.include_router(faq_router)
 app.include_router(blog_router)
 app.include_router(contact_router)
 app.include_router(about_router)
+app.include_router(otp_router)
 
 
 # User Profile Endpoints with Enterprise Validation

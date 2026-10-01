@@ -4,15 +4,16 @@ from sqlalchemy import func
 
 from database import get_db
 from models import User
-from schemas import SignupUser, UpdateUser
+from schemas import SignupUser, SignupInitiateRequest, SignupCompleteRequest, UpdateUser
+from otp_service import get_otp_provider
 
 router = APIRouter()
 
 
-# Create User (Signup)
-@router.post("/signup", status_code=status.HTTP_201_CREATED)
-def signup(user: SignupUser, db: Session = Depends(get_db)):
-    # Case-insensitive email uniqueness check
+# Step 1: Initiate Signup (Validate & Send OTP - NO database record created)
+@router.post("/signup/initiate")
+def signup_initiate(user: SignupInitiateRequest, db: Session = Depends(get_db)):
+    # Check if email is already registered
     existing_user = db.query(User).filter(
         func.lower(User.email) == user.email.lower(),
         User.is_deleted == False
@@ -24,7 +25,7 @@ def signup(user: SignupUser, db: Session = Depends(get_db)):
             detail="An account with this email address already exists."
         )
 
-    # Mobile uniqueness check
+    # Check if mobile number is already registered
     existing_mobile = db.query(User).filter(
         User.mobile == user.mobile,
         User.is_deleted == False
@@ -42,6 +43,55 @@ def signup(user: SignupUser, db: Session = Depends(get_db)):
             detail="Passwords do not match."
         )
 
+    # Generate and send OTP via modular OTP provider
+    # NOTE: DO NOT write user to MySQL yet! User is only created upon valid OTP entry.
+    provider = get_otp_provider()
+    otp_code = provider.generate_otp(user.mobile)
+    provider.send_otp(user.mobile, otp_code)
+
+    return {
+        "message": f"Verification code sent to +91 {user.mobile}",
+        "mobile": user.mobile,
+        "dev_otp": otp_code,
+    }
+
+
+# Step 2: Complete Signup (Verify OTP & Create User Record in MySQL)
+@router.post("/signup/verify", status_code=status.HTTP_201_CREATED)
+@router.post("/signup", status_code=status.HTTP_201_CREATED)
+def signup_complete(user: SignupCompleteRequest, db: Session = Depends(get_db)):
+    # 1. Verify OTP FIRST before any database operation
+    provider = get_otp_provider()
+    if not provider.verify_otp(user.mobile, user.otp):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid OTP. Please try again."
+        )
+
+    # 2. Re-verify uniqueness in database
+    existing_user = db.query(User).filter(
+        func.lower(User.email) == user.email.lower(),
+        User.is_deleted == False
+    ).first()
+
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="An account with this email address already exists."
+        )
+
+    existing_mobile = db.query(User).filter(
+        User.mobile == user.mobile,
+        User.is_deleted == False
+    ).first()
+
+    if existing_mobile:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="An account with this mobile number already exists."
+        )
+
+    # 3. Create user permanently in MySQL with is_mobile_verified = True
     new_user = User(
         name=user.name,
         email=user.email,
@@ -50,7 +100,8 @@ def signup(user: SignupUser, db: Session = Depends(get_db)):
         mobile=user.mobile,
         address=user.address,
         profile_photo=user.profile_photo,
-        is_deleted=False
+        is_deleted=False,
+        is_mobile_verified=True
     )
 
     db.add(new_user)
@@ -58,7 +109,7 @@ def signup(user: SignupUser, db: Session = Depends(get_db)):
     db.refresh(new_user)
 
     return {
-        "message": "User registered successfully",
+        "message": "Account created successfully.",
         "user": {
             "id": new_user.id,
             "name": new_user.name,
@@ -67,6 +118,7 @@ def signup(user: SignupUser, db: Session = Depends(get_db)):
             "gender": new_user.gender,
             "address": new_user.address,
             "profile_photo": new_user.profile_photo,
+            "is_mobile_verified": True,
         }
     }
 

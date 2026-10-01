@@ -9,12 +9,13 @@ class User(Base):
     email = Column(String(255), unique=True)
     password = Column(String(255))
     gender = Column(String(20))
-    mobile = Column(String(20))
+    mobile = Column(String(20), unique=True)
     address = Column(String(255))
 
     profile_photo = Column(Text, nullable=True)
 
     is_deleted = Column(Boolean, default=False)
+    is_mobile_verified = Column(Boolean, default=False)
     
 class Category(Base):
     __tablename__ = "categories"

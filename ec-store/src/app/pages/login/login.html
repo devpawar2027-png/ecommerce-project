@@ -1,9 +1,33 @@
 <main class="auth-page">
   <div class="auth-card">
     <div class="auth-header">
-      <div class="auth-icon">🔐</div>
-      <h1>Welcome Back</h1>
-      <p>Log in to access your orders, wishlist and cart</p>
+      <div class="auth-icon">🛍️</div>
+      <h1>Welcome to EC Store</h1>
+      <p>Log in to access your orders, wishlist, and cart</p>
+    </div>
+
+    <!-- Flipkart / Amazon Style Tab Switcher -->
+    <div class="auth-tabs" role="tablist">
+      <button
+        type="button"
+        role="tab"
+        class="tab-btn"
+        [class.active]="activeTab === 'password'"
+        (click)="switchTab('password')"
+      >
+        <span class="tab-icon">🔑</span>
+        <span>Login with Password</span>
+      </button>
+      <button
+        type="button"
+        role="tab"
+        class="tab-btn"
+        [class.active]="activeTab === 'otp'"
+        (click)="switchTab('otp')"
+      >
+        <span class="tab-icon">📱</span>
+        <span>Login with OTP</span>
+      </button>
     </div>
 
     @if (successMessage) {
@@ -20,56 +44,172 @@
       </div>
     }
 
-    <form (ngSubmit)="onLogin()" class="auth-form" novalidate>
-      <div class="form-group">
-        <label for="email">Email Address <span class="required">*</span></label>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          [(ngModel)]="email"
-          [class.input-invalid]="!!fieldErrors.email"
-          placeholder="name@example.com"
-          required
-          autocomplete="email"
-        />
-        @if (fieldErrors.email) {
-          <div class="field-error">
-            <span>⚠️</span> {{ fieldErrors.email }}
-          </div>
-        }
-      </div>
-
-      <div class="form-group">
-        <div class="label-row">
-          <label for="password">Password <span class="required">*</span></label>
+    <!-- TAB 1: Email + Password Login -->
+    @if (activeTab === 'password') {
+      <form (ngSubmit)="onPasswordLogin()" class="auth-form" novalidate>
+        <div class="form-group">
+          <label for="email">Email Address <span class="required">*</span></label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            [(ngModel)]="email"
+            [class.input-invalid]="!!fieldErrors.email"
+            placeholder="name@example.com"
+            required
+            autocomplete="email"
+          />
+          @if (fieldErrors.email) {
+            <div class="field-error">
+              <span>⚠️</span> {{ fieldErrors.email }}
+            </div>
+          }
         </div>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          [(ngModel)]="password"
-          [class.input-invalid]="!!fieldErrors.password"
-          placeholder="••••••••"
-          required
-          autocomplete="current-password"
-        />
-        @if (fieldErrors.password) {
-          <div class="field-error">
-            <span>⚠️</span> {{ fieldErrors.password }}
+
+        <div class="form-group">
+          <div class="label-row">
+            <label for="password">Password <span class="required">*</span></label>
           </div>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            [(ngModel)]="password"
+            [class.input-invalid]="!!fieldErrors.password"
+            placeholder="••••••••"
+            required
+            autocomplete="current-password"
+          />
+          @if (fieldErrors.password) {
+            <div class="field-error">
+              <span>⚠️</span> {{ fieldErrors.password }}
+            </div>
+          }
+        </div>
+
+        <button
+          type="submit"
+          class="btn-primary"
+          [disabled]="isLoading"
+          [class.btn-disabled]="isLoading"
+        >
+          {{ isLoading ? 'Signing in...' : 'Sign In with Password' }}
+        </button>
+      </form>
+    }
+
+    <!-- TAB 2: Mobile Number + OTP Login -->
+    @if (activeTab === 'otp') {
+      <div class="otp-auth-flow">
+        <!-- Step 1: Mobile Number Input -->
+        @if (otpStep === 'mobile') {
+          <form (ngSubmit)="onRequestOtp()" class="auth-form" novalidate>
+            <div class="form-group">
+              <label for="mobile">
+                Mobile Number <span class="required">*</span>
+              </label>
+              <div class="phone-input-wrap" [class.input-invalid]="!!fieldErrors.mobile">
+                <span class="phone-prefix">+91</span>
+                <input
+                  type="tel"
+                  id="mobile"
+                  name="mobile"
+                  [(ngModel)]="mobile"
+                  placeholder="Enter 10-digit mobile number"
+                  maxlength="10"
+                  required
+                  autocomplete="tel"
+                />
+              </div>
+              @if (fieldErrors.mobile) {
+                <div class="field-error">
+                  <span>⚠️</span> {{ fieldErrors.mobile }}
+                </div>
+              }
+              <p class="field-hint">We will send a 4-digit verification code to this number.</p>
+            </div>
+
+            <button
+              type="submit"
+              class="btn-primary"
+              [disabled]="isLoading"
+              [class.btn-disabled]="isLoading"
+            >
+              {{ isLoading ? 'Sending OTP...' : 'Request OTP' }}
+            </button>
+          </form>
+        }
+
+        <!-- Step 2: 4-digit OTP Input -->
+        @if (otpStep === 'otp') {
+          <form (ngSubmit)="onVerifyOtpLogin()" class="auth-form" novalidate>
+            <div class="otp-recipient-box">
+              <div class="recipient-info">
+                <span class="phone-tag">Sent to +91 {{ mobile }}</span>
+                <button type="button" class="btn-change-num" (click)="changeMobile()">
+                  Change
+                </button>
+              </div>
+              @if (devOtpHint) {
+                <div class="dev-otp-badge">
+                  <span>💡 Test Mode:</span> Use OTP <strong>{{ devOtpHint }}</strong> (last 4 digits)
+                </div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="otp">Enter 4-Digit OTP <span class="required">*</span></label>
+              <input
+                type="text"
+                id="otp"
+                name="otp"
+                [(ngModel)]="otp"
+                [class.input-invalid]="!!fieldErrors.otp"
+                placeholder="• • • •"
+                maxlength="4"
+                pattern="[0-9]{4}"
+                class="otp-digit-input"
+                required
+                autocomplete="one-time-code"
+                autofocus
+              />
+              @if (fieldErrors.otp) {
+                <div class="field-error">
+                  <span>⚠️</span> {{ fieldErrors.otp }}
+                </div>
+              }
+            </div>
+
+            <!-- Resend Controller -->
+            <div class="resend-row">
+              @if (resendCountdown > 0) {
+                <span class="resend-timer">
+                  Resend OTP in <strong>{{ resendCountdown }}s</strong>
+                </span>
+              } @else {
+                <button
+                  type="button"
+                  class="btn-resend"
+                  (click)="onResendOtp()"
+                  [disabled]="isLoading"
+                >
+                  Resend OTP
+                </button>
+              }
+            </div>
+
+            <button
+              type="submit"
+              class="btn-primary"
+              [disabled]="isLoading"
+              [class.btn-disabled]="isLoading"
+            >
+              {{ isLoading ? 'Verifying...' : 'Verify & Sign In' }}
+            </button>
+          </form>
         }
       </div>
-
-      <button
-        type="submit"
-        class="btn-primary"
-        [disabled]="isLoading"
-        [class.btn-disabled]="isLoading"
-      >
-        {{ isLoading ? 'Logging in...' : 'Sign In' }}
-      </button>
-    </form>
+    }
 
     <div class="auth-footer">
       <p>New to EC Store? <a routerLink="/register" [queryParams]="returnUrl ? { returnUrl } : null">Create an account</a></p>

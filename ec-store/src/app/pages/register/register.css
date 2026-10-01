@@ -15,11 +15,96 @@
   border: 1px solid #e2e8f0;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
   padding: 36px 32px;
+  transition: all 0.3s ease;
 }
 
+.auth-card-otp {
+  max-width: 440px;
+}
+
+.auth-card-success {
+  max-width: 460px;
+}
+
+/* Stepper Bar (Flipkart / Amazon Style) */
+.stepper-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  padding: 0 6px;
+}
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  z-index: 1;
+}
+
+.step-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  border: 2px solid #cbd5e1;
+  color: #64748b;
+  font-size: 0.82rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
+}
+
+.step-label {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #94a3b8;
+  white-space: nowrap;
+  transition: color 0.25s ease;
+}
+
+.step-item.active .step-circle {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+.step-item.active .step-label {
+  color: #2563eb;
+  font-weight: 700;
+}
+
+.step-item.completed .step-circle {
+  background: #10b981;
+  border-color: #10b981;
+  color: #ffffff;
+}
+
+.step-item.completed .step-label {
+  color: #059669;
+}
+
+.step-connector {
+  flex: 1;
+  height: 2px;
+  background: #e2e8f0;
+  margin: 0 8px -18px;
+  transition: background 0.25s ease;
+}
+
+.step-connector.completed {
+  background: #10b981;
+}
+
+/* Header */
 .auth-header {
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 22px;
 }
 
 .auth-icon {
@@ -28,7 +113,7 @@
 }
 
 .auth-header h1 {
-  font-size: 1.6rem;
+  font-size: 1.55rem;
   font-weight: 800;
   color: #0f172a;
   margin-bottom: 6px;
@@ -40,6 +125,11 @@
   margin: 0;
 }
 
+.auth-header p strong {
+  color: #0f172a;
+}
+
+/* Alerts */
 .alert-error {
   background: #fef2f2;
   border: 1px solid #fecaca;
@@ -66,6 +156,7 @@
   margin-bottom: 18px;
 }
 
+/* Form Styles */
 .auth-form {
   display: flex;
   flex-direction: column;
@@ -121,6 +212,21 @@
   border-color: #2563eb;
   background: #ffffff;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.input-invalid {
+  border-color: #ef4444 !important;
+  background: #fff8f8 !important;
+}
+
+.field-error {
+  font-size: 0.78rem;
+  color: #dc2626;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
 }
 
 .form-group textarea {
@@ -183,7 +289,7 @@
   outline: none;
 }
 
-/* Password with show/hide eye toggle */
+/* Password with toggle */
 .password-wrap {
   position: relative;
   display: flex;
@@ -214,6 +320,233 @@
   opacity: 0.75;
 }
 
+/* OTP Verification Panel */
+.otp-verification-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.otp-recipient-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recipient-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.phone-tag {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.btn-change-num {
+  background: transparent;
+  border: none;
+  color: #2563eb;
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.btn-change-num:hover {
+  color: #1d4ed8;
+}
+
+.dev-otp-badge {
+  background: #eff6ff;
+  border: 1px dashed #93c5fd;
+  color: #1e40af;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+}
+
+.dev-otp-badge strong {
+  color: #1d4ed8;
+  font-size: 0.88rem;
+  letter-spacing: 2px;
+  background: #ffffff;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid #bfdbfe;
+}
+
+/* 4-Digit Centered OTP Input */
+.otp-digit-input {
+  text-align: center;
+  font-size: 1.4rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 12px;
+  height: 52px !important;
+  color: #0f172a !important;
+}
+
+.resend-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.84rem;
+  color: #64748b;
+}
+
+.resend-timer strong {
+  color: #2563eb;
+}
+
+.btn-resend {
+  background: transparent;
+  border: none;
+  color: #2563eb;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  text-decoration: underline;
+}
+
+.btn-resend:hover:not(:disabled) {
+  color: #1d4ed8;
+}
+
+.btn-resend:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Step 3: Success Celebration Panel */
+.success-panel {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.success-icon-wrap {
+  margin-bottom: 16px;
+}
+
+.success-checkmark {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: #10b981;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  font-weight: 800;
+  box-shadow: 0 10px 25px rgba(16, 185, 129, 0.35);
+  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.success-panel h2 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+
+.success-sub {
+  font-size: 0.88rem;
+  color: #64748b;
+  margin-bottom: 20px;
+}
+
+.user-summary-card {
+  width: 100%;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.summary-label {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.summary-val {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.badge-verified {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.btn-success-action {
+  width: 100%;
+  font-size: 1rem;
+}
+
+.redirect-hint {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  margin-top: 10px;
+}
+
+/* Spinner */
+.btn-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  display: inline-block;
+  animation: spin 0.6s linear infinite;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Buttons */
 .btn-primary {
   height: 46px;
   background: #2563eb;
@@ -223,7 +556,11 @@
   font-size: 0.95rem;
   font-weight: 700;
   cursor: pointer;
-  margin-top: 8px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   transition: background 0.2s ease;
 }
 
@@ -233,6 +570,29 @@
 
 .btn-primary:disabled {
   opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  height: 42px;
+  background: #ffffff;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
+.btn-secondary:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
@@ -257,11 +617,19 @@
 
 @media (max-width: 560px) {
   .auth-card {
-    padding: 28px 20px;
+    padding: 24px 18px;
   }
 
   .form-row {
     grid-template-columns: 1fr;
     gap: 15px;
+  }
+
+  .stepper-bar {
+    padding: 0;
+  }
+
+  .step-label {
+    font-size: 0.7rem;
   }
 }

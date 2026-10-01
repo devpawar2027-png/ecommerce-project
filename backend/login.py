@@ -36,6 +36,12 @@ def login(user: LoginUser, db: Session = Depends(get_db)):
             detail="Invalid email or password."
         )
 
+    if not existing_user.is_mobile_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Your mobile number has not been verified yet. Please use 'Login with OTP' to verify your account and sign in."
+        )
+
     return {
         "message": "Login successful",
         "user": {
@@ -46,6 +52,7 @@ def login(user: LoginUser, db: Session = Depends(get_db)):
             "gender": existing_user.gender,
             "email": existing_user.email,
             "profile_photo": existing_user.profile_photo,
+            "is_mobile_verified": existing_user.is_mobile_verified,
         }
     }
 

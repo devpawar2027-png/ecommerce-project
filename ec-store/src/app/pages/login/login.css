@@ -9,7 +9,7 @@
 
 .auth-card {
   width: 100%;
-  max-width: 440px;
+  max-width: 460px;
   background: #ffffff;
   border-radius: 20px;
   border: 1px solid #e2e8f0;
@@ -19,7 +19,7 @@
 
 .auth-header {
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 22px;
 }
 
 .auth-icon {
@@ -28,7 +28,7 @@
 }
 
 .auth-header h1 {
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   font-weight: 800;
   color: #0f172a;
   margin-bottom: 6px;
@@ -40,6 +40,49 @@
   margin: 0;
 }
 
+/* Flipkart / Amazon Style Tabs */
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: #f1f5f9;
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 22px;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover:not(.active) {
+  color: #0f172a;
+}
+
+.tab-btn.active {
+  background: #ffffff;
+  color: #2563eb;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.tab-icon {
+  font-size: 1rem;
+}
+
+/* Alerts */
 .alert-error {
   background: #fef2f2;
   border: 1px solid #fecaca;
@@ -84,6 +127,11 @@
   color: #334155;
 }
 
+.required {
+  color: #ef4444;
+  font-weight: 700;
+}
+
 .form-group input {
   height: 44px;
   border: 1px solid #cbd5e1;
@@ -93,6 +141,7 @@
   font-size: 0.92rem;
   color: #0f172a;
   outline: none;
+  font-family: inherit;
   transition: all 0.2s ease;
 }
 
@@ -102,6 +151,167 @@
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
+.input-invalid {
+  border-color: #ef4444 !important;
+  background: #fff8f8 !important;
+}
+
+.field-error {
+  font-size: 0.78rem;
+  color: #dc2626;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.field-hint {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin: 2px 0 0;
+}
+
+/* Phone input with +91 prefix */
+.phone-input-wrap {
+  display: flex;
+  align-items: center;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #f8fafc;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.phone-input-wrap:focus-within {
+  border-color: #2563eb;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.phone-prefix {
+  padding: 0 12px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #475569;
+  border-right: 1px solid #e2e8f0;
+  background: #f1f5f9;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  user-select: none;
+}
+
+.phone-input-wrap input {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  flex: 1;
+  height: 44px;
+  padding: 0 12px;
+  outline: none;
+}
+
+/* OTP Recipient Box & Test Mode Badge */
+.otp-recipient-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recipient-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.phone-tag {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.btn-change-num {
+  background: transparent;
+  border: none;
+  color: #2563eb;
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.btn-change-num:hover {
+  color: #1d4ed8;
+}
+
+.dev-otp-badge {
+  background: #eff6ff;
+  border: 1px dashed #93c5fd;
+  color: #1e40af;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+}
+
+.dev-otp-badge strong {
+  color: #1d4ed8;
+  font-size: 0.88rem;
+  letter-spacing: 2px;
+  background: #ffffff;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid #bfdbfe;
+}
+
+/* 4-Digit Centered OTP Input */
+.otp-digit-input {
+  text-align: center;
+  font-size: 1.4rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 12px;
+  height: 52px !important;
+  color: #0f172a !important;
+}
+
+.resend-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.84rem;
+  color: #64748b;
+}
+
+.resend-timer strong {
+  color: #2563eb;
+}
+
+.btn-resend {
+  background: transparent;
+  border: none;
+  color: #2563eb;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  text-decoration: underline;
+}
+
+.btn-resend:hover:not(:disabled) {
+  color: #1d4ed8;
+}
+
+.btn-resend:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Primary Button */
 .btn-primary {
   height: 46px;
   background: #2563eb;
@@ -111,7 +321,7 @@
   font-size: 0.95rem;
   font-weight: 700;
   cursor: pointer;
-  margin-top: 6px;
+  margin-top: 4px;
   transition: background 0.2s ease;
 }
 
@@ -119,20 +329,9 @@
   background: #1d4ed8;
 }
 
-.btn-demo {
-  height: 40px;
-  background: #eff6ff;
-  color: #2563eb;
-  border: 1px dashed #93c5fd;
-  border-radius: 10px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-demo:hover {
-  background: #dbeafe;
+.btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .auth-footer {
